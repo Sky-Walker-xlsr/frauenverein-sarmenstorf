@@ -1,86 +1,68 @@
 ---
-import Layout from "../layouts/layout.astro";
-import Header from "../components/header.astro";
-import Footer from "../components/footer.astro";
-
-import "../styles/index.css";
-import "../styles/base.css";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EventList from '../components/EventList.astro';
+import '../styles/index.css';
 ---
 
-<Layout
-    title="Test-Astro frv Sarmi"
->
-    <Header />
+<BaseLayout title="Startseite">
 
-    <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="container hero-inner">
-                <div class="hero-text">
-                    <h2>Willkommen beim</h2>
-                    <h1>FRAUENVEREIN SARMENSTORF</h1>
-                    <p>
-                        Wir freuen uns, dich auf unserer Homepage begrüssen zu
-                        dürfen.<br />
-                        Du kannst dich hier über unser Vereinsangebot informieren.<br
-                        />
-                        Nicht lange studieren, schau vorbei!
-                    </p>
-                    <div class="spacer"></div>
-                    <a class="button" href="/ueber-uns">Über uns</a>
-                </div>
-            </div>
-        </section>
+  <!-- Banner: Freizeitplausch Anmeldung -->
+  <!-- <div class="fp-banner">
+    <a href="/freizeitplausch">
+      Hier gehts zur Freizeitplausch Anmeldung
+    </a>
+  </div> -->
 
-        <!-- Nächste Anlässe -->
-        <section class="events section">
-            <div class="container">
-                <h2>Unsere nächsten Anlässe:</h2>
-                <div class="events-grid">
-                    <div class="event-card">
-                        <h3>Tagesreise</h3>
-                        <p>Abfahrt 9.00 Uhr auf dem Kirchenparkplatz für alle Angemeldeten.</p>
-                        <p><strong>5. September 2025</strong></p>
-                    </div>
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <h2>Willkommen beim</h2>
+        <h1>FRAUENVEREIN SARMENSTORF</h1>
+        <p>
+          Wir freuen uns, dich auf unserer Homepage begrüssen zu dürfen.<br />
+          Du kannst dich hier über unser Vereinsangebot informieren.<br />
+          Nicht lange studieren, schau vorbei!
+        </p>
+        <div class="spacer"></div>
+        <a class="button" href="/ueber-uns">Über uns</a>
+      </div>
+    </div>
+  </section>
 
-                    <div class="event-card">
-                        <h3>Überraschungs-Abend</h3>
-                        <p>Ein grosses Highlight für alle Mitglieder.</p>
-                        <p><strong>15. Oktober 2025</strong></p>
-                    </div>
-                </div>
-            </div>
-        </section>
+  <section class="events section">
+    <div class="container">
+      <h2>Unsere nächsten Anlässe:</h2>
 
-        <!-- Über uns -->
-        <section class="about section">
-            <div class="container about-inner">
-                <div class="about-text">
-                    <h2>Über uns</h2>
-                    <p>
-                        Der Frauenverein Sarmenstorf engagiert sich seit vielen
-                        Jahren für Gemeinschaft, Kultur und Begegnung im Dorf.
-                        Wir organisieren Anlässe, unterstützen Projekte und
-                        pflegen das Miteinander.
-                    </p>
-                    <a class="button ghost" href="/ueber-uns">Mehr erfahren</a>
-                </div>
-                <div class="about-image">
-                    <img src="/images/index/index-1.jpg" alt="Über uns Bild" />
-                </div>
-            </div>
-        </section>
+      <EventList variant="preview" limit={2} />
 
-        <!-- Interesse -->
-        <section class="cta">
-            <img src="/images/logo.png" alt="Logo Frauenverein" class="cta-bg" />
+      <div class="spacer"></div>
+      <a class="button center" href="/jahresprogramm">Jahresprogramm</a>
+    </div>
+  </section>
 
-            <div class="cta-overlay">
-                <h2>Interessiert?</h2>
-                <a class="button" href="/kontakt">Nimm Kontakt mit uns auf</a>
-            </div>
-        </section>
-    </main>
+  <section class="about section">
+    <div class="container about-inner">
+      <div class="about-text">
+        <h2>Über uns</h2>
+        <p>
+          Der Frauenverein Sarmenstorf engagiert sich seit vielen Jahren für
+          Gemeinschaft, Kultur und Begegnung im Dorf. Wir organisieren Anlässe,
+          unterstützen Projekte und pflegen das Miteinander.
+        </p>
+        <a class="button ghost" href="/ueber-uns">Mehr erfahren</a>
+      </div>
+      <div class="about-image">
+        <img src="/images/index/index-1.jpg" alt="Über uns Bild" />
+      </div>
+    </div>
+  </section>
 
-    <Footer />
-</Layout>
+  <section class="cta">
+    <img src="/images/logo.png" alt="Logo Frauenverein" class="cta-bg" />
+    <div class="cta-overlay">
+      <h2>Interessiert?</h2>
+      <a class="button" href="/kontakt">Nimm Kontakt mit uns auf</a>
+    </div>
+  </section>
+
+</BaseLayout>

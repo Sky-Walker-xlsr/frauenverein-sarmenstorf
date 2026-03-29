@@ -1,0 +1,70 @@
+.jassdaten {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  
+  .jassdaten-sub {
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+  }
+  
+  .jassdaten-table-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow-x: auto;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: #fff;
+  }
+  
+  .jassdaten-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+  }
+  
+  .jassdaten-table th,
+  .jassdaten-table td {
+    padding: 0.9rem;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    text-align: left;
+  }
+  
+  .jassdaten-table th {
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    background: #fafafa;
+  }
+  
+  .jassdaten-table th.sort-asc::after {
+    content: " ↑";
+  }
+  
+  .jassdaten-table th.sort-desc::after {
+    content: " ↓";
+  }
+  
+  .row-donnerstag td {
+    background: rgba(0,0,0,0.03);
+  }
+  
+  .row-mittwoch td {
+    background: rgba(0,0,0,0.07);
+  }
+  
+  .badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 700;
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+  
+  .badge-donnerstag {
+    background: rgba(0,0,0,0.05);
+  }
+  
+  .badge-mittwoch {
+    background: rgba(0,0,0,0.15);
+  }
+  

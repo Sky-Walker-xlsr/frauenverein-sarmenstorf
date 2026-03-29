@@ -1,7 +1,7 @@
-/* Hero Section */
+/* ================= Hero ================= */
 .hero {
   background: var(--header-footer);
-  padding: 80px 0 60px;
+  padding: clamp(48px, 8vw, 80px) 0 clamp(36px, 6vw, 60px);
   text-align: center;
 }
 
@@ -10,53 +10,80 @@
   margin: 0 0 12px;
   color: var(--fg);
   font-weight: 700;
-  text-align: center;
   line-height: 1.2;
-  white-space: normal; /* Standard */
+  text-wrap: balance;
 }
 
-@media (min-width: 1000px) {
+@supports not (text-wrap: balance) {
   .hero-text h1 {
-    white-space: nowrap; /* ab Desktop keine Umbrüche */
+    word-break: normal;
+    white-space: normal;
   }
 }
 
+.hero h2 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--muted);
+}
 
-
-.hero h2 { font-size: 1.5rem; font-weight: 500; margin: 0; color: var(--muted); }
 .hero p {
   max-width: 60ch;
-  margin: 0 auto;
+  margin: 8px auto 0;
   color: var(--fg);
   line-height: 1.6;
 }
 
-.hero-cta { display: flex; gap: 12px; margin-top: 20px; justify-content: center; }
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: center;
+}
 
-/* Events Section */
-.events { padding: 60px 0; }
-.events h2 { text-align: center; margin-bottom: 30px; }
+/* ================= Events ================= */
+.events {
+  padding: clamp(40px, 6vw, 60px) 0;
+}
+
+.events h2 {
+  text-align: center;
+  margin: 0 0 30px;
+  letter-spacing: .2px;
+}
+
 .events-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: clamp(16px, 3vw, 24px);
 }
 
 .event-card {
   background: var(--card);
-  padding: 20px;
+  padding: clamp(16px, 3vw, 20px);
   border-radius: var(--radius);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.event-card h3 { margin: 0; color: var(--brand); }
-.event-card p { margin: 0; color: var(--fg); }
+.event-card h3 {
+  margin: 0;
+  color: var(--brand);
+}
 
-/* About Section */
-.about { padding: 60px 0; }
+.event-card p {
+  margin: 0;
+  color: var(--fg);
+}
+
+/* ================= About ================= */
+.about {
+  padding: clamp(40px, 6vw, 60px) 0;
+}
+
 .about-inner {
   display: flex;
   gap: 40px;
@@ -66,7 +93,7 @@
 
 .about-text {
   flex: 1;
-  max-width: clamp(280px, 40%, 460px); /* skaliert sauber */
+  max-width: clamp(280px, 40%, 460px);
   line-height: 1.6;
 }
 
@@ -79,53 +106,97 @@
 .about-image img {
   width: 300px;
   height: 300px;
+  object-fit: cover;
   object-position: bottom;
   border-radius: var(--radius);
-  object-fit: cover;
 }
 
-/* CTA (Interessiert?) */
+@media (max-width:850px) {
+  .about-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .about-image {
+    justify-content: center;
+  }
+
+  .about-image img {
+    width: min(420px, 100%);
+    height: auto;
+  }
+}
+
+/* ================= CTA ================= */
 .cta {
   position: relative;
   background: var(--header-footer);
-  padding: 120px 0;
+  padding: clamp(72px, 10vw, 120px) 0;
   text-align: center;
   overflow: hidden;
 }
 
-/* Großes Logo im Hintergrund */
 .cta-bg {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 1200px;       /* richtig groß auf Desktop */
-  max-width: 95vw;     /* auf kleineren Screens beschränkt */
+  width: min(1200px, 95vw);
   z-index: 0;
-  pointer-events: none; /* keine Klicks blockieren */
+  pointer-events: none;
+  opacity: .12;
 }
 
-/* Weißer Container */
 .cta-overlay {
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.80); /* hier geändert */
+  background: rgba(255, 255, 255, .80);
   display: inline-block;
-  padding: 40px 60px;
+  padding: clamp(28px, 4vw, 40px) clamp(24px, 5vw, 60px);
   border-radius: var(--radius);
 }
 
 .cta h2 {
   margin: 0 0 20px;
-  font-size: 2.2rem;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
   color: var(--brand);
+  letter-spacing: .2px;
 }
 
+/* ================= Utilities ================= */
 .spacer {
-  height: 40px;   /* Abstand in px – anpassen nach Bedarf */
+  height: 40px;
 }
 
+/* Button mittig unter Events (robust mit/ohne Wrapper) */
+.events .container>.button,
+.events .container .button-center .button {
+  display: block;
+  margin: 2rem auto 0;
+  width: fit-content;
+  float: none;
+}
 
+.events .container .button-center {
+  width: 100%;
+}
 
+/* Banner: Freizeitplausch Anmeldung */
+.fp-banner {
+  width: 100%;
+  background: var(--brand);
+  text-align: center;
+}
 
+.fp-banner a {
+  display: block;
+  color: white;
+  padding: 14px 0;
 
+  font-size: 1.2rem;
+  font-weight: 600;
+
+  text-decoration: none;
+}

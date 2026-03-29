@@ -1,57 +1,130 @@
+/* ===== Adventsfenster: Fixed 4x6 Grid ===== */
+
+/* Grid-Container: FESTES 4-Spalten Layout */
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* jetzt 4 Karten pro Reihe */
-  gap: 30px; /* mehr Abstand zwischen den Karten */
-  justify-items: center;
+  grid-template-columns: repeat(4, 180px);  /* EXAKT 4 Spalten à 180px */
+  gap: 30px;
+  justify-content: center;  /* Grid selbst zentrieren */
+  width: 100%;
 }
 
+/* Karte: FIXE quadratische Grösse */
 .flip-card {
-  width: 180px;   /* größere Karten */
+  width: 180px;
   height: 180px;
-  perspective: 1200px;
+  perspective: 1000px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
+/* Inner Container */
 .flip-inner {
   width: 100%;
   height: 100%;
   position: relative;
-  transition: transform 0.8s ease;
+  transition: transform 0.6s ease;
   transform-style: preserve-3d;
 }
 
+/* Flip-Zustand */
+.flip-card.flipped .flip-inner,
 .flip-card:hover .flip-inner {
   transform: rotateY(180deg);
 }
 
-.flip-front, .flip-back {
+/* Beide Seiten */
+.flip-front,
+.flip-back {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 2rem; /* Zahl größer sichtbar */
   text-align: center;
 }
 
+/* Vorderseite */
 .flip-front {
   background: var(--card);
   color: var(--brand);
+  font-weight: 700;
+  font-size: 2rem;
 }
 
+/* Rückseite */
 .flip-back {
   background: var(--header-footer);
   color: var(--fg);
   transform: rotateY(180deg);
+  padding: 20px;
+  line-height: 1.45;
   flex-direction: column;
-  font-size: 1rem;
-  padding: 15px;
-  line-height: 1.4;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 6px;
+  font-size: 0.95rem;
 }
 
+/* Badge mit Tageszahl auf der Rückseite */
+.flip-back .back-day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 2px #0000000f, 0 10px 18px #00000014;
+}
+
+/* Textblöcke auf der Rückseite */
+.flip-back > strong,
+.flip-back > span:not(.back-day) {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: 0;
+}
+
+.flip-back > strong {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.flip-back .back-address {
+  color: var(--muted);
+}
+
+.flip-back .back-extra {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(214, 40, 40, 0.12);
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Seitentitel */
 .page-title {
   font-size: 2.2rem;
   font-weight: 700;
@@ -59,4 +132,75 @@
   margin-bottom: 30px;
   padding: 60px 0;
   color: var(--fg);
+}
+
+/* Intro-Text */
+.intro p {
+  max-width: 800px;
+  margin: 0 auto 20px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ===== Responsiv ===== */
+
+/* Tablets: 3 Spalten */
+@media (max-width: 1100px) {
+  .calendar-grid {
+    grid-template-columns: repeat(3, 180px);
+    gap: 28px;
+  }
+}
+
+/* Mobile: 2 Spalten, grössere Karten */
+@media (max-width: 850px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 200px);
+    gap: 22px;
+  }
+  
+  .flip-card {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+    padding: 40px 0;
+  }
+}
+  
+
+/* Sehr kleine Phones: 2 Spalten, noch kleinere Karten */
+@media (max-width: 500px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 160px);
+    gap: 16px;
+  }
+  
+  .flip-card {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .flip-front {
+    font-size: 1.8rem;
+  }
+  
+  .flip-back {
+    font-size: 0.85rem;
+    padding: 12px;
+  }
+
+  .flip-back .back-day {
+    font-size: 0.95rem;
+    padding: 5px 14px;
+  }
+}
+
+/* Motion-Reduce */
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner {
+    transition: none;
+  }
 }

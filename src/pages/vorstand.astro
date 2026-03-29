@@ -1,91 +1,74 @@
 ---
-import Layout from "../layouts/layout.astro";
-import Header from "../components/header.astro";
-import Footer from "../components/footer.astro";
-
-// Anzahl Bilder manuell setzen:
-const count = 2; // HIER anpassen, falls mehr Bilder dazukommen
-const bilder = Array.from({ length: count }, (_, i) => [
-  `/images/vorstand/vorstand-${i + 1}.jpg`,
-  `/images/vorstand/vorstand-${i + 1}.JPG`
-]);
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/vorstand.css';
 ---
 
-<Layout
-    title="Vorstand – Frauenverein Sarmenstorf"
-    styleFile="/src/styles/vorstand.css"
->
-    <Header />
+<BaseLayout title="Vorstand">
+  <section class="vorstand">
+    <div class="container text-center">
+      <h1>Vorstand</h1>
 
-    <main>
-        <section class="vorstand">
-            <div class="container text-center">
-                <h1>Vorstand</h1>
+      <div class="slideshow-container">
+        <div class="slideshow-track" id="vs-track"></div>
+      </div>
 
-                <!-- Slideshow -->
-                <div class="slideshow-container">
-                    <div class="slideshow-track" id="slideshow-track">
-                        {bilder.map((srcs, i) => (
-                            <img
-                                src={srcs[0]}
-                                onError={`this.onerror=null;this.src='${srcs[1]}'`}
-                                alt={`Vorstand ${i + 1}`}
-                                loading="lazy"
-                            />
-                        ))}
-                    </div>
-                </div>
+      <div class="vorstand-grid">
+        <div>
+          <p><strong>Präsidentin:</strong><br />Nicole Salm</p>
+          <p><strong>Aktuarin:</strong><br />Conni Hubel</p>
+          <p><strong>Beisitzerin, Deko:</strong><br />Vakant</p>
+        </div>
+        <div>
+          <p><strong>Kassierin, Vizepräsidentin:</strong><br />Susi Tschumi</p>
+          <p><strong>Anlässe:</strong><br />Andrea Zubler</p>
+        </div>
+      </div>
 
-                <!-- Mitglieder -->
-                <div class="vorstand-grid">
-                    <div>
-                        <p><strong>Präsidentin:</strong><br />Daniela Strebel</p>
-                        <p><strong>Kassierin:</strong><br />Susi Tschumi</p>
-                        <p><strong>Aktuarin:</strong><br />(Conni Hubel)</p>
-                    </div>
-                    <div>
-                        <p><strong>Vizepräsidentin, Anlässe, Freizeitplausch:</strong><br />Nicole Salm</p>
-                        <p><strong>Anlässe:</strong><br />Andrea Zuber</p>
-                    </div>
-                </div>
+      <p class="intro">
+        Ideen, Anregungen oder Wünsche können jederzeit gerne an uns gerichtet werden.<br />
+        Wir versuchen diese umzusetzen in der Gestaltung des kommenden Jahresprogrammes.<br />
+        Zusammen mit euch allen wünschen wir uns unvergessliche Stunden.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
 
-                <!-- Text -->
-                <p class="intro">
-                    Ideen, Anregungen oder Wünsche können jederzeit gerne an uns gerichtet werden.<br />
-                    Wir versuchen diese umzusetzen in der Gestaltung des kommenden Jahresprogrammes.<br />
-                    Zusammen mit euch allen wünschen wir uns unvergessliche Stunden.
-                </p>
-            </div>
-        </section>
-    </main>
-
-    <Footer />
-</Layout>
+<style>
+  .slideshow-container { overflow: hidden; width: 100%; }
+  .slideshow-track { display: flex; width: 100%; }
+  .slideshow-track img { width: 100%; flex: 0 0 100%; display: block; }
+</style>
 
 <script>
-  const track = document.getElementById("slideshow-track");
-  const slides = track.querySelectorAll("img");
-
-  // Clone für Endlos-Slideshow
-  const firstClone = slides[0].cloneNode(true);
-  track.appendChild(firstClone);
-
-  let index = 0;
-  const intervalTime = 5000;
-
-  function moveSlide() {
-    index++;
-    track.style.transition = "transform 0.8s ease-in-out";
-    track.style.transform = `translateX(-${index * 100}%)`;
-
-    if (index === slides.length) {
-      setTimeout(() => {
-        track.style.transition = "none";
-        track.style.transform = "translateX(0)";
-        index = 0;
-      }, 800);
+  (function () {
+    const count = 2;
+    const track = document.getElementById('vs-track') as HTMLElement;
+    Array.from({ length: count }, (_, i) => i + 1).forEach((n) => {
+      const img = new Image();
+      img.loading = 'lazy';
+      img.alt = 'Vorstand';
+      img.src = `/images/vorstand/vorstand-${n}.jpg`;
+      img.onerror = function (this: HTMLImageElement) {
+        this.onerror = null;
+        this.src = `/images/vorstand/vorstand-${n}.JPG`;
+      };
+      track.appendChild(img);
+    });
+    if (track.children.length) track.appendChild(track.firstElementChild!.cloneNode(true));
+    let idx = 0;
+    const dur = 800, wait = 5000;
+    function move() {
+      idx++;
+      track.style.transition = `transform ${dur}ms ease-in-out`;
+      track.style.transform = `translateX(-${idx * 100}%)`;
+      if (idx === track.children.length - 1) {
+        setTimeout(() => {
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+          idx = 0;
+        }, dur);
+      }
     }
-  }
-
-  setInterval(moveSlide, intervalTime);
+    setInterval(move, wait);
+  })();
 </script>

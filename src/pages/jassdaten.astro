@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/jassdaten.css';
+
+const jassdaten = [
+  { date: "08.01.26", note: "" },
+  { date: "04.02.26", note: "" },
+  { date: "05.03.26", note: "" },
+  { date: "01.04.26", note: "" },
+  { date: "07.05.26", note: "" },
+  { date: "03.06.26", note: "" },
+  { date: "02.07.26", note: "" },
+  { date: "12.08.26", note: "Ferien" },
+  { date: "03.09.26", note: "" },
+  { date: "07.10.26", note: "" },
+  { date: "05.11.26", note: "" },
+  { date: "02.12.26", note: "" },
+];
+
+const entries = jassdaten.map((item, i) => ({
+  date: item.date,
+  weekday: i % 2 === 0 ? "Donnerstag" : "Mittwoch",
+  location: i % 2 === 0 ? "Rest. Post" : "Rest. Kreuz",
+  note: item.note || "",
+}));
+---
+
+<BaseLayout title="Jassdaten">
+  <section class="jassdaten">
+    <h1>Jassdaten 2026</h1>
+    <p>Jassdaten des Frauenvereins von 2026. Beginn immer um 19.30 Uhr</p>
+    <p>Ab Januar 2026 finden die Jassrunden des Frauenvereins wieder abwechslungsweise im Kreuz und Post statt.</p>
+
+    <div class="jassdaten-table-wrap">
+      <table class="jassdaten-table" id="jassTable">
+        <thead>
+          <tr>
+            <th data-sort="date" class="is-sortable" aria-sort="ascending">Datum</th>
+            <th data-sort="weekday" class="is-sortable" aria-sort="none">Wochentag</th>
+            <th data-sort="location" class="is-sortable" aria-sort="none">Restaurant</th>
+            <th data-sort="note" class="is-sortable" aria-sort="none">Hinweis</th>
+          </tr>
+        </thead>
+        <tbody id="jassTbody">
+          {entries.map((e) => (
+            <tr class={e.weekday === "Mittwoch" ? "row-mittwoch" : "row-donnerstag"} data-date={e.date} data-weekday={e.weekday} data-location={e.location} data-note={e.note}>
+              <td>{e.date}</td>
+              <td>
+                <span class={`badge ${e.weekday === "Mittwoch" ? "badge-mittwoch" : "badge-donnerstag"}`}>
+                  {e.weekday}
+                </span>
+              </td>
+              <td>{e.location}</td>
+              <td>{e.note || "–"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Sortierung
+  const tbody = document.getElementById('jassTbody') as HTMLTableSectionElement;
+  const headers = document.querySelectorAll<HTMLTableCellElement>('.jassdaten-table th.is-sortable');
+  const state = { sortKey: 'date', sortDir: 'asc' };
+
+  function parseDateCH(v: string) {
+    const [d, m, y] = v.split('.');
+    return new Date(2000 + Number(y), Number(m) - 1, Number(d));
+  }
+
+  function render(key: string, dir: string) {
+    const rows = [...tbody.querySelectorAll<HTMLTableRowElement>('tr')];
+    rows.sort((a, b) => {
+      const av = a.dataset[key] || '';
+      const bv = b.dataset[key] || '';
+      let r = key === 'date'
+        ? parseDateCH(av).getTime() - parseDateCH(bv).getTime()
+        : av.localeCompare(bv, 'de-CH', { sensitivity: 'base' });
+      return dir === 'asc' ? r : -r;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+
+    headers.forEach(h => {
+      const hKey = h.dataset.sort || '';
+      h.classList.toggle('sort-asc', hKey === key && dir === 'asc');
+      h.classList.toggle('sort-desc', hKey === key && dir === 'desc');
+      h.setAttribute('aria-sort', hKey === key ? (dir === 'asc' ? 'ascending' : 'descending') : 'none');
+    });
+  }
+
+  headers.forEach(h => {
+    h.addEventListener('click', () => {
+      const key = h.dataset.sort || 'date';
+      state.sortDir = state.sortKey === key && state.sortDir === 'asc' ? 'desc' : 'asc';
+      state.sortKey = key;
+      render(state.sortKey, state.sortDir);
+    });
+  });
+</script>

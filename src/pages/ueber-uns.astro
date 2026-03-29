@@ -1,73 +1,66 @@
 ---
-import Layout from "../layouts/layout.astro";
-import Header from "../components/header.astro";
-import Footer from "../components/footer.astro";
-
-// Anzahl Bilder manuell setzen:
-const count = 4; // HIER anpassen
-const bilder = Array.from({ length: count }, (_, i) => [
-  `/images/ueber-uns/ueber-uns-${i + 1}.jpg`,
-  `/images/ueber-uns/ueber-uns-${i + 1}.JPG`
-]);
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/ueber-uns.css';
 ---
 
-<Layout title="Über uns – Frauenverein Sarmenstorf" styleFile="/src/styles/ueber-uns.css">
-  <Header />
+<BaseLayout title="Über uns">
+  <section class="section ueber-uns">
+    <div class="container">
+      <h1 class="page-title">Über uns</h1>
+      <p>
+        Der Frauenverein Sarmenstorf wurde im Jahre 1917 gegründet. Bereits haben wir das 100-jährige
+        Jubiläum mit einem speziellen Anlass gefeiert. Wir sind stolz darauf, 200 Mitglieder zu zählen.
+        Wir wollen mit unserem Angebot das Leben in der Gemeinde aktiv mitgestalten und setzen uns
+        für ein lebendiges Miteinander im Dorf ein.
+      </p>
+      <p>
+        Der Ursprung unseres Vereins liegt in der katholischen Kirche. Heute sind bei uns Frauen jeden
+        Alters und unabhängig ihrer Konfession willkommen. Mit einem Jahresbeitrag von 20 Franken bist du dabei.
+      </p>
 
-  <main>
-    <section class="section ueber-uns">
-      <div class="container">
-        <h1 class="page-title">Über uns</h1>
-        <p>
-          Der Frauenverein Sarmenstorf wurde im Jahre 1917 gegründet. Bereits haben wir das
-          100-jährige Jubiläum mit einem speziellen Anlass gefeiert. Wir sind stolz darauf,
-          200 Mitglieder zu zählen. Wir wollen mit unserem Angebot das Leben in der Gemeinde
-          aktiv mitgestalten und setzen uns für ein lebendiges Miteinander im Dorf ein.
-        </p>
-        <p>
-          Der Ursprung unseres Vereins liegt in der katholischen Kirche. Heute sind bei uns
-          Frauen jeden Alters und unabhängig ihrer Konfession willkommen. Mit einem Jahresbeitrag
-          von 20 Franken bist du dabei.
-        </p>
-
-        <!-- Slideshow -->
-        <div class="slideshow-container">
-          <div class="slideshow-track" id="slideshow-track">
-            {bilder.map((srcs, i) => (
-              <img src={srcs[0]} onError={`this.onerror=null;this.src='${srcs[1]}'`} alt={`Bild ${i + 1}`} loading="lazy" />
-            ))}
-          </div>
-        </div>
+      <div class="slideshow-container">
+        <div class="slideshow-track" id="uu-track"></div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
+</BaseLayout>
 
-  <Footer />
-</Layout>
+<style>
+  .slideshow-container { overflow: hidden; width: 100%; }
+  .slideshow-track { display: flex; width: 100%; }
+  .slideshow-track img { width: 100%; flex: 0 0 100%; display: block; }
+</style>
 
 <script>
-  const track = document.getElementById("slideshow-track");
-  const slides = track.querySelectorAll("img");
-
-  const firstClone = slides[0].cloneNode(true);
-  track.appendChild(firstClone);
-
-  let index = 0;
-  const intervalTime = 5000;
-
-  function moveSlide() {
-    index++;
-    track.style.transition = "transform 0.8s ease-in-out";
-    track.style.transform = `translateX(-${index * 100}%)`;
-
-    if (index === slides.length) {
-      setTimeout(() => {
-        track.style.transition = "none";
-        track.style.transform = "translateX(0)";
-        index = 0;
-      }, 800);
+  (function () {
+    const count = 4;
+    const track = document.getElementById('uu-track') as HTMLElement;
+    Array.from({ length: count }, (_, i) => i + 1).forEach((n) => {
+      const img = new Image();
+      img.loading = 'lazy';
+      img.alt = `Bild ${n}`;
+      img.src = `/images/ueber-uns/ueber-uns-${n}.jpg`;
+      img.onerror = function (this: HTMLImageElement) {
+        this.onerror = null;
+        this.src = `/images/ueber-uns/ueber-uns-${n}.JPG`;
+      };
+      track.appendChild(img);
+    });
+    if (track.children.length) track.appendChild(track.firstElementChild!.cloneNode(true));
+    let index = 0;
+    const dur = 800, wait = 5000;
+    function move() {
+      index++;
+      track.style.transition = `transform ${dur}ms ease-in-out`;
+      track.style.transform = `translateX(-${index * 100}%)`;
+      if (index === track.children.length - 1) {
+        setTimeout(() => {
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(0)';
+          index = 0;
+        }, dur);
+      }
     }
-  }
-
-  setInterval(moveSlide, intervalTime);
+    setInterval(move, wait);
+  })();
 </script>

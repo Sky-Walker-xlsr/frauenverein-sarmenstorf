@@ -7,17 +7,14 @@
 
 .ueber-uns h1 {
   font-size: 2.2rem;
-  margin-bottom: 20px;
-    margin-top: 20px;
+  margin: 20px 0;
 }
 
 .ueber-uns p {
-  margin: 0 0 16px;
+  margin: 0 auto 16px;
+  max-width: 70ch;
   line-height: 1.7;
   color: var(--fg);
-  max-width: 70ch;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .ueber-uns strong {
@@ -32,8 +29,298 @@
 }
 
 .about-image img {
-  width: 700px;         /* Skalierung */
+  width: 700px;
   height: auto;
   border-radius: var(--radius);
-  object-fit: cover;    /* schneidet Überflüssiges ab */
+  object-fit: cover;
+}
+
+/* ===== Anmeldeformular ===== */
+
+.fp-form {
+  width: min(880px, calc(100% - 32px));
+  margin: 48px auto;
+  padding: 34px 34px 28px;
+  background: #fff;
+  border-radius: var(--radius);
+  border: 1px solid rgba(62, 58, 54, 0.12);
+  box-shadow: 0 16px 40px rgba(62, 58, 54, 0.1);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.fp-title {
+  margin: 0 0 26px;
+  text-align: center;
+  font-size: 28px;
+  letter-spacing: 0.2px;
+  font-weight: 750;
+}
+
+.fp-section {
+  padding: 18px 0 22px;
+  border-top: 1px solid rgba(62, 58, 54, 0.12);
+}
+
+.fp-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.fp-section-title {
+  margin: 0 0 14px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 750;
+}
+
+/* Angebote */
+.fp-offers {
+  display: grid;
+  gap: 10px;
+}
+
+.fp-offer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--bg);
+  border: 1px solid rgba(62, 58, 54, 0.12);
+}
+
+.fp-offer-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.fp-offer-name {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--fg);
+}
+
+.fp-offer-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* Checkbox UI rechts */
+.fp-choice {
+  cursor: pointer;
+  user-select: none;
+}
+
+.fp-choice input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fp-choice-ui {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 2px solid rgba(62, 58, 54, 0.35);
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  background: #fff;
+  margin-top: 2px;
+}
+
+.fp-choice input[type="checkbox"]:checked + .fp-choice-ui {
+  border-color: var(--brand);
+  background: rgba(214, 40, 40, 0.1);
+}
+
+.fp-choice input[type="checkbox"]:checked + .fp-choice-ui::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: solid var(--brand);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.fp-choice:focus-within {
+  outline: 2px solid rgba(214, 40, 40, 0.25);
+  outline-offset: 2px;
+}
+
+/* Formular-Felder */
+.fp-row {
+  display: grid;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.fp-row-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fp-row-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fp-field {
+  display: grid;
+  gap: 8px;
+}
+
+.fp-label {
+  font-size: 12px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.fp-field input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(62, 58, 54, 0.25);
+  padding: 10px 2px 8px;
+  color: var(--fg);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.fp-field input::placeholder {
+  color: rgba(122, 111, 103, 0.65);
+}
+
+.fp-field input:focus {
+  border-bottom-color: var(--brand);
+}
+
+/* Checkbox Cards (Elterntaxi + Consent) */
+.fp-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: calc(var(--radius) - 4px);
+  border: 1px solid rgba(62, 58, 54, 0.12);
+  background: var(--bg);
+  cursor: pointer;
+  user-select: none;
+}
+
+.fp-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brand);
+}
+
+.fp-check span {
+  font-size: 14px;
+  color: var(--fg);
+}
+
+/* Consent Bereich */
+.fp-consent {
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(62, 58, 54, 0.12);
+}
+
+.fp-consent-check {
+  align-items: flex-start;
+}
+
+/* Submit Button */
+.fp-submit {
+  margin: 22px auto 0;
+  display: block;
+  min-width: 190px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(214, 40, 40, 0.22);
+  transition: transform 0.08s ease, filter 0.2s ease;
+}
+
+.fp-submit:hover {
+  filter: brightness(1.03);
+}
+
+.fp-submit:active {
+  transform: translateY(1px);
+}
+
+/* Modal */
+.fp-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.fp-modal.active {
+  display: flex;
+}
+
+.fp-modal-content {
+  background: #fff;
+  padding: 32px;
+  border-radius: var(--radius);
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  color: var(--fg);
+}
+
+.fp-modal-content h3 {
+  margin: 0 0 16px;
+}
+
+.fp-modal-content p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.fp-modal-close {
+  margin-top: 18px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 720px) {
+  .fp-form {
+    padding: 24px 18px 22px;
+  }
+
+  .fp-row-2,
+  .fp-row-3 {
+    grid-template-columns: 1fr;
+  }
 }

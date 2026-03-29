@@ -1,0 +1,269 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/freizeitplausch.css';
+---
+
+<BaseLayout title="Freizeitplausch">
+
+  <section class="section ueber-uns">
+    <div class="container">
+      <h1>Anmeldung Freizeitplausch</h1>
+
+      <p>
+        Der Freizeitplausch findet in den Frühlingsferien statt und bietet Kindern ein abwechslungsreiches Programm
+        mit insgesamt sechs spannenden Angeboten.
+        Alle Details zu den einzelnen Aktivitäten, Zeiten und Kosten findest du im folgenden
+        <a href="/dokumente/Freizeitplausch-2026-Ausschreibung.pdf" target="_blank">Flyer</a>.<br /><br />
+        Unten findest du das Anmeldeformular. Pro Kind können bis zu sechs Angebote ausgewählt werden. Bitte beachte
+        jedoch, dass jedes Kind einzeln angemeldet werden muss – für jedes Kind ist ein separates Formular
+        auszufüllen.<br /><br />
+        Wir freuen uns sehr über freiwillige Unterstützung beim Elterntaxi für die Angebote 2, 3 und 6. Wenn du dich
+        dafür zur Verfügung stellen kannst, sind wir dir sehr dankbar.<br /><br />
+        Bitte beachte bei der Anmeldung die jeweilige Klassenregelung der einzelnen Angebote.<br /><br />
+        Vielen Dank fürs Mitmachen – wir freuen uns auf einen tollen Freizeitplausch!
+      </p>
+
+      <form id="freizeitplauschForm" action="https://formspree.io/f/mlgwajye" method="POST" class="fp-form">
+
+        <h2 class="fp-title">Freizeitplausch Anmeldung</h2>
+
+        <section class="fp-section">
+          <h3 class="fp-section-title">Angebote (mindestens 1)</h3>
+          <div class="fp-offers">
+
+            <label class="fp-offer fp-choice">
+              <div class="fp-offer-text">
+                <div class="fp-offer-name">1 – Turnen</div>
+                <div class="fp-offer-meta">KiGa–1.Kl. · Di. · 07.04.2026 · 8.– (10.–)</div>
+              </div>
+              <input type="checkbox" name="angebote[]" value="1 – Turnen" />
+              <span class="fp-choice-ui"></span>
+            </label>
+
+            <label class="fp-offer fp-choice">
+              <div class="fp-offer-text">
+                <div class="fp-offer-name">2 – Adventure <strong>Ausgebucht</strong></div>
+                <div class="fp-offer-meta">ab 3.Kl. · Di. · 07.04.2026 · 22.– (24.–)</div>
+              </div>
+              <input type="checkbox" name="angebote[]" value="2 – Adventure" />
+              <span class="fp-choice-ui"></span>
+            </label>
+
+            <label class="fp-offer fp-choice">
+              <div class="fp-offer-text">
+                <div class="fp-offer-name">3 – Falkner <strong>Ausgebucht</strong></div>
+                <div class="fp-offer-meta">ab 1.Kl. · Fr. · 10.04.2026 · 12.– (14.–)</div>
+              </div>
+              <input type="checkbox" name="angebote[]" value="3 – Falkner" />
+              <span class="fp-choice-ui"></span>
+            </label>
+
+            <label class="fp-offer fp-choice">
+              <div class="fp-offer-text">
+                <div class="fp-offer-name">4 – Ruckli <strong>Ausgebucht</strong></div>
+                <div class="fp-offer-meta">KiGa–2.Kl. · Di. · 14.04.2026 · gratis</div>
+              </div>
+              <input type="checkbox" name="angebote[]" value="4 – Ruckli" />
+              <span class="fp-choice-ui"></span>
+            </label>
+
+            <label class="fp-offer fp-choice">
+              <div class="fp-offer-text">
+                <div class="fp-offer-name">5 – Lettering</div>
+                <div class="fp-offer-meta">ab 3.Kl. · Do. · 16.04.2026 · 20.– (22.–)</div>
+              </div>
+              <input type="checkbox" name="angebote[]" value="5 – Lettering" />
+              <span class="fp-choice-ui"></span>
+            </label>
+
+            <label class="fp-offer fp-choice">
+              <div class="fp-offer-text">
+                <div class="fp-offer-name">6 – Dinos</div>
+                <div class="fp-offer-meta">KiGa–2.Kl. · Fr. · 17.04.2026 · 16.– (18.–)</div>
+              </div>
+              <input type="checkbox" name="angebote[]" value="6 – Dinos" />
+              <span class="fp-choice-ui"></span>
+            </label>
+
+          </div>
+        </section>
+
+        <section class="fp-section">
+          <h3 class="fp-section-title">Elterntaxi (freiwillig)</h3>
+          <div class="fp-row fp-row-3">
+            <label class="fp-check">
+              <input type="checkbox" name="elterntaxi" value="Angebot 2" />
+              <span>Angebot 2</span>
+            </label>
+            <label class="fp-check">
+              <input type="checkbox" name="elterntaxi" value="Angebot 3" />
+              <span>Angebot 3</span>
+            </label>
+            <label class="fp-check">
+              <input type="checkbox" name="elterntaxi" value="Angebot 6" />
+              <span>Angebot 6</span>
+            </label>
+          </div>
+          <div class="fp-row">
+            <label class="fp-field">
+              <span class="fp-label">Anzahl Plätze</span>
+              <input type="number" name="taxi_plaetze" min="1" inputmode="numeric" />
+            </label>
+          </div>
+        </section>
+
+        <section class="fp-section">
+          <h3 class="fp-section-title">Kind</h3>
+          <div class="fp-row fp-row-2">
+            <label class="fp-field">
+              <span class="fp-label">Name Kind</span>
+              <input type="text" name="kind_name" required placeholder="Vorname Nachname" autocomplete="name" />
+            </label>
+            <label class="fp-field">
+              <span class="fp-label">Klasse</span>
+              <input type="text" name="kind_klasse" required placeholder="Kg1, P1a" />
+            </label>
+          </div>
+        </section>
+
+        <section class="fp-section">
+          <h3 class="fp-section-title">Kontakt</h3>
+          <div class="fp-row fp-row-2">
+            <label class="fp-field">
+              <span class="fp-label">Adresse</span>
+              <input type="text" name="adresse" required placeholder="Beispielstrasse 1 5614" autocomplete="street-address" />
+            </label>
+            <label class="fp-field">
+              <span class="fp-label">Name Eltern</span>
+              <input type="text" name="name_eltern" required placeholder="Vorname Nachname" autocomplete="name" />
+            </label>
+          </div>
+          <div class="fp-row fp-row-2">
+            <label class="fp-field">
+              <span class="fp-label">Telefon</span>
+              <input
+                type="tel"
+                name="telefon"
+                required
+                inputmode="tel"
+                placeholder="079 845 85 85"
+                pattern="^(\+41|0041|0)?[ ]*\(?\d{2}\)?[ ]*[-.]?\d{3}[ ]*[-.]?\d{2}[ ]*[-.]?\d{2}$"
+                title="Bitte eine gültige Schweizer Nummer eingeben"
+              />
+            </label>
+            <label class="fp-field">
+              <span class="fp-label">E-Mail</span>
+              <input
+                type="email"
+                name="email"
+                required
+                autocomplete="email"
+                placeholder="name@domain.ch"
+                pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"
+                title="Bitte eine gültige E-Mail eingeben"
+              />
+            </label>
+          </div>
+        </section>
+
+        <input type="hidden" id="summary" name="message" />
+
+        <div class="fp-consent">
+          <label class="fp-check fp-consent-check">
+            <input type="checkbox" id="consent" required />
+            <span>Ich bestätige, den Flyer gelesen zu haben und mit den Bedingungen einverstanden zu sein.</span>
+          </label>
+          <input type="hidden" name="einverstanden" id="einverstandenField" value="" />
+        </div>
+
+        <button type="submit" class="fp-submit">Senden</button>
+
+      </form>
+
+      <div id="fpSuccessModal" class="fp-modal">
+        <div class="fp-modal-content">
+          <h3>Anmeldung erfolgreich versendet</h3>
+          <p>
+            Vielen Dank für deine Anmeldung zum Freizeitplausch.
+            Das Formular wurde erfolgreich an uns übermittelt.
+            Wir melden uns spätestens innerhalb von fünf Tagen bei dir.
+          </p>
+          <button id="closeModalBtn" class="fp-modal-close">Schliessen</button>
+        </div>
+      </div>
+
+      <div class="about-image">
+        <img src="/images/freizeitplausch/logo-freizeitplausch.png" alt="Freizeitplausch Bild" />
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('freizeitplauschForm') as HTMLFormElement;
+  const summaryField = document.getElementById('summary') as HTMLInputElement;
+  const consentCheckbox = document.getElementById('consent') as HTMLInputElement;
+  const consentField = document.getElementById('einverstandenField') as HTMLInputElement;
+  const modal = document.getElementById('fpSuccessModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+
+  closeModalBtn?.addEventListener('click', () => modal?.classList.remove('active'));
+
+  function buildSummary(): string {
+    const lines: string[] = [];
+    const angebote = [...document.querySelectorAll<HTMLInputElement>('input[name="angebote[]"]:checked')].map(x => x.value);
+    lines.push('Angebote:');
+    lines.push(angebote.length ? angebote.map(a => `- ${a}`).join('\n') : '- —');
+    lines.push('', 'Kind:');
+    lines.push(`- ${(document.querySelector('input[name="kind_name"]') as HTMLInputElement).value} (Klasse: ${(document.querySelector('input[name="kind_klasse"]') as HTMLInputElement).value})`);
+    lines.push('', 'Kontakt:');
+    lines.push(`- Adresse: ${(document.querySelector('input[name="adresse"]') as HTMLInputElement).value}`);
+    lines.push(`- Name Eltern: ${(document.querySelector('input[name="name_eltern"]') as HTMLInputElement).value}`);
+    lines.push(`- Telefon: ${(document.querySelector('input[name="telefon"]') as HTMLInputElement).value}`);
+    lines.push(`- E-Mail: ${(document.querySelector('input[name="email"]') as HTMLInputElement).value}`);
+    const taxiChecked = [...document.querySelectorAll<HTMLInputElement>('input[name="elterntaxi"]:checked')].map(x => x.value);
+    const taxiPlaetze = (document.querySelector('input[name="taxi_plaetze"]') as HTMLInputElement)?.value;
+    lines.push('', 'Elterntaxi (freiwillig):');
+    lines.push(`- Angebote: ${taxiChecked.length ? taxiChecked.join(', ') : '—'}`);
+    lines.push(`- Plätze: ${taxiPlaetze || '—'}`);
+    lines.push('', 'Einverstanden:', '- ja');
+    return lines.join('\n');
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    if (!document.querySelectorAll('input[name="angebote[]"]:checked').length) {
+      alert('Bitte mindestens ein Angebot auswählen.'); return;
+    }
+    if (!consentCheckbox.checked) {
+      alert('Bitte bestätige die Einverständniserklärung.'); return;
+    }
+
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const oldText = btn?.textContent ?? 'Senden';
+    try {
+      if (btn) { btn.disabled = true; btn.textContent = 'Senden ...'; }
+      consentField.value = 'ja';
+      summaryField.value = buildSummary();
+
+      const fd = new FormData();
+      fd.append('email', (document.querySelector('input[name="email"]') as HTMLInputElement).value.trim());
+      fd.append('message', summaryField.value);
+      fd.append('einverstanden', 'ja');
+      fd.append('_subject', 'Neue Anmeldung Freizeitplausch');
+
+      const res = await fetch(form.action, { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error('Beim Senden ist ein Fehler aufgetreten. Bitte versuche es nochmals.');
+
+      form.reset();
+      modal?.classList.add('active');
+    } catch (err: any) {
+      alert(err.message || 'Beim Senden ist ein Fehler aufgetreten.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = oldText; }
+    }
+  });
+</script>

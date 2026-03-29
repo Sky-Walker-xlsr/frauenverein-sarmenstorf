@@ -1,4 +1,4 @@
-/* Variablen & Grundlayout */
+/* =================== Variables & Base =================== */
 :root {
   --bg: #f2eee8;
   --header-footer: #e6dfd6;
@@ -10,15 +10,12 @@
 }
 
 * {
-  box-sizing: border-box;
+  box-sizing: border-box
 }
 
 html,
 body {
-  height: 100%;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  height: 100%
 }
 
 body {
@@ -27,54 +24,56 @@ body {
   background: var(--bg);
   color: var(--fg);
   line-height: 1.55;
+  display: flex;
+  flex-direction: column;
 }
 
 main {
-  flex: 1;
-  /* nimmt den restlichen Platz ein und schiebt den Footer nach unten */
+  flex: 1
 }
 
 a {
   color: var(--brand);
-  text-decoration: none;
+  text-decoration: none
 }
 
-a:hover {
-  text-decoration: underline;
+a:hover,
+a:focus {
+  text-decoration: underline
 }
 
 .container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 20px
 }
 
-/* Header */
+/* =================== Header (Desktop default) =================== */
 .site-header {
   position: sticky;
   top: 0;
   z-index: 50;
   background: var(--header-footer);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #0001;
+  box-shadow: 0 2px 4px #0001;
 }
 
 .header-bar {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 0;
+  padding: 12px 0
 }
 
 .brand-logo img {
   height: 60px;
   width: auto;
-  display: block;
+  display: block
 }
 
-/* Navigation */
+/* Desktop nav */
 .nav {
-  margin-left: auto;
+  margin-left: auto
 }
 
 .nav ul {
@@ -84,19 +83,17 @@ a:hover {
   display: flex;
   gap: 14px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap
 }
 
 .nav li {
-  position: relative;
+  position: relative
 }
 
 .nav a {
   display: inline-block;
   padding: 10px 12px;
-  color: var(--fg);
-  text-decoration: none;
-  border-radius: 0;
+  color: var(--fg)
 }
 
 .nav a:hover::after,
@@ -109,11 +106,11 @@ a:hover {
   background: var(--brand);
 }
 
-/* Dropdown */
+/* Desktop dropdown */
 .has-sub>a .caret {
   font-size: .9em;
   opacity: .8;
-  margin-left: 6px;
+  margin-left: 6px
 }
 
 .has-sub .sub {
@@ -124,91 +121,164 @@ a:hover {
   padding: 8px 0;
   background: #fffdf8;
   color: var(--fg);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+  box-shadow: 0 8px 24px #0000001a;
   border-radius: 6px;
   display: none;
   z-index: 1000;
 }
 
-.has-sub .sub li {
-  display: block;
-}
-
 .has-sub .sub a {
+  display: block;
   color: var(--fg);
-  padding: 10px 16px;
-  width: 100%;
+  padding: 10px 16px
 }
 
 .has-sub .sub a:hover {
-  background: rgba(0, 0, 0, .04);
+  background: #0000000a
 }
 
 .has-sub:hover .sub,
 .has-sub:focus-within .sub {
-  display: block;
+  display: block
 }
 
-/* Mobile Nav */
+/* =================== Toggle (Burger) =================== */
 .nav-toggle {
   display: none;
   margin-left: auto;
+  border: 0;
   background: transparent;
-  color: var(--fg);
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 999px;
-  padding: 8px 12px;
+  cursor: pointer;
+  padding: 8px;
 }
 
-@media (max-width:700px) {
-  .nav {
-    display: none;
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--fg);
+  margin: 5px 0;
+  transition: transform .2s, opacity .2s
+}
+
+.nav-toggle.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg)
+}
+
+.nav-toggle.is-open span:nth-child(2) {
+  opacity: 0
+}
+
+.nav-toggle.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg)
+}
+
+/* =================== Mobile Overlay (always defined) =================== */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--header-footer);
+  color: var(--fg);
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .28s ease, opacity .28s ease;
+  padding: max(16px, env(safe-area-inset-top)) 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: auto;
+}
+
+.mobile-overlay.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlay-close {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: 12px;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.mobile-overlay ul {
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+}
+
+.mobile-overlay>ul>li {
+  margin: 10px 0;
+}
+
+.mobile-overlay a {
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.mobile-overlay .overlay-sub {
+  margin: 8px 0 0 16px;
+}
+
+.mobile-overlay .overlay-sub a {
+  font-size: 1.2rem;
+  font-weight: 600;
+  opacity: .9;
+}
+
+/* Body scroll lock */
+body.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Motion preference */
+@media (prefers-reduced-motion:reduce) {
+  .nav-toggle span {
+    transition: none
   }
 
-  .nav.open {
-    display: block;
+  .mobile-overlay {
+    transition: none
+  }
+}
+
+/* =================== Breakpoints =================== */
+/* <850px: Desktop-Nav aus, Burger an */
+@media (max-width:850px) {
+  .brand-logo img {
+    height: 48px
   }
 
-  .nav ul {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-  }
-
-  .nav li {
-    width: 100%;
-  }
-
-  .nav a {
-    width: 100%;
-    padding: 12px 6px;
-  }
-
-  .has-sub .sub {
-    position: static;
-    box-shadow: none;
-    background: transparent;
-    padding: 0 0 8px 12px;
-  }
-
-  .has-sub .sub a {
-    color: var(--fg);
-    padding: 8px 0;
+  .desktop-nav {
+    display: none
   }
 
   .nav-toggle {
-    display: inline-block;
+    display: inline-block
   }
 }
 
-/* Utility */
+/* =================== Utility =================== */
 .section {
-  padding: 40px 0;
+  padding: 40px 0
 }
 
 .section h1,
 .section h2 {
-  margin: 0 0 14px;
+  margin: 0 0 14px
 }
 
 .button {
@@ -219,60 +289,58 @@ a:hover {
   color: #fff;
   border-radius: 999px;
   padding: 12px 18px;
-  font-weight: 600;
+  font-weight: 600
 }
 
 .button.ghost {
   background: transparent;
   color: var(--brand);
-  border: 1px solid var(--brand);
+  border: 1px solid var(--brand)
 }
 
 .card {
   background: var(--card);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid #0001;
   border-radius: var(--radius);
-  padding: 18px;
+  padding: 18px
 }
 
 .rounded {
   width: 100%;
   border-radius: var(--radius);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid #0001
 }
 
-/* Footer */
+/* =================== Footer =================== */
 .site-footer {
   margin-top: auto;
   padding: 28px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  background: var(--header-footer);
+  border-top: 1px solid #0001;
+  background: var(--header-footer)
 }
 
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 20px
+}
+
+@media (max-width:900px) {
+  .footer-grid {
+    grid-template-columns: 1fr
+  }
 }
 
 .legal {
   text-align: center;
-  /* mittig */
-  font-size: 0.8rem;
-  color: #666;
+  font-size: .8rem;
+  color: #666
 }
 
-footer .container-legal {
-  text-align: center;
-  /* Text mittig */
-  margin: 0 auto;
-  /* Block in der Mitte */
-  display: block;
+.event-iso { 
+  display: none !important; 
 }
 
-
-@media (max-width:900px) {
-  .footer-grid {
-    grid-template-columns: 1fr;
-  }
+.spacer {
+  height: 30px;
 }

@@ -25,10 +25,6 @@
   line-height: 1.6;
 }
 
-.spacer {
-  height: 30px;
-}
-
 .highlight {
   font-size: 1.2rem;
   text-align: center;
@@ -36,3 +32,5 @@
   margin: 20px 0;
   color: var(--brand);
 }
+
+

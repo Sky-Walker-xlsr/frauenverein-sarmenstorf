@@ -1,260 +1,124 @@
 ---
-import Layout from "../layouts/layout.astro";
-import Header from "../components/header.astro";
-import Footer from "../components/footer.astro";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/adventsfenster.css';
 
-// Daten für die 24 Kästchen
-const adventsfenster = [
-    {
-        tag: 1,
-        name: "Familie Bütler",
-        adresse: "Brunnmattstrasse 20",
-        
-        umtrunk: "Mit Umtrunk",
-    },
-
-    {
-        tag: 2,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 3,
-        name: "Familie Wengle/Wenk",
-        adresse: "Feldeggstrasse 20",
-        
-        umtrunk: "Mit Umtrunk",
-    },
-
-    {
-        tag: 4,
-        name: "Fam. Rostan",
-        adresse: "Bahndammweg 6c",
-        
-        umtrunk: "Mit Umtrunk", 
-    },
-
-    {
-        tag: 5,
-        name: "VVS",
-        adresse: "VVS-Rabatte Marktstrasse",
-        
-        umtrunk: "Mit Umtrunk",
-    },
-
-    {
-        tag: 6,
-        name: "Familie Wey",
-        adresse: "Kreuzrain 8",
-        
-        umtrunk: "", // ?
-    },
-
-    {
-        tag: 7,
-        name: "Familie Weibel",
-        adresse: "Jurastrasse 13",
-        
-        umtrunk: "Kein Umtrunk",
-    },
-
-    {
-        tag: 8,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 9,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 10,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 11,
-        name: "Frauenverein",
-        adresse: "Pfarreitreff",
-        
-        umtrunk: "Mit Umtrunk",
-    },
-
-    {
-        tag: 12,
-        name: "Ruepp Schreinerei AG",
-        adresse: "Feldeggstrasse 3",
-        
-        umtrunk: "Mit Umtrunk",
-    },
-
-    {
-        tag: 13,
-        name: "Fam. Frankenfeld",
-        adresse: "Feldeggstrasse 4",
-        
-        umtrunk: "Mit Umtrunk",
-    },
-
-    {
-        tag: 14,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 15,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 16,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 17,
-        name: "Jubla",
-        adresse: "Breitistrasse 18",
-        
-        umtrunk: "", // ?
-    },
-
-    {
-        tag: 18,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 19,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 20,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 21,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 22,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 23,
-        name: "Verfügbar",
-        adresse: "",
-        
-        umtrunk: "",
-    },
-
-    {
-        tag: 24,
-        name: "Kirche",
-        adresse: "Kaplaneiweg 2",
-        
-        umtrunk: "",
-    },
+const fenster = [
+  { tag: 1,  name: "Rita Meyer",                           adresse: "Quellenweg 22",          umtrunk: "Mit Umtrunk" },
+  { tag: 2,  name: "Gewerbeverein Sarmenstorf",            adresse: "Hilfikerstrasse 4",       umtrunk: "Mit Umtrunk" },
+  { tag: 3,  name: "Familie Wengle/Wenk",                  adresse: "Feldeggstrasse 20",       umtrunk: "Mit Umtrunk" },
+  { tag: 4,  name: "Fam. Rostan",                          adresse: "Bahndammweg 6c",          umtrunk: "Mit Umtrunk" },
+  { tag: 5,  name: "VVS",                                  adresse: "VVS-Rabatte Marktstrasse",umtrunk: "Mit Umtrunk" },
+  { tag: 6,  name: "Familie Wey",                          adresse: "Kreuzrain 8",             umtrunk: "" },
+  { tag: 7,  name: "Familie Weibel",                       adresse: "Jurastrasse 13",          umtrunk: "" },
+  { tag: 8,  name: "Familie Karli",                        adresse: "Kirchweg 7",              umtrunk: "Mit Umtrunk" },
+  { tag: 9,  name: "Bäckerei Ruckli",                      adresse: "Marktstrasse 11",         umtrunk: "Mit Umtrunk" },
+  { tag: 10, name: "Bibliothek Sarmenstorf",               adresse: "Schulhaus",               umtrunk: "Mit Umtrunk" },
+  { tag: 11, name: "Frauenverein",                         adresse: "Pfarreitreff",            umtrunk: "Mit Umtrunk" },
+  { tag: 12, name: "Ruepp Schreinerei AG",                 adresse: "Feldeggstrasse 3",        umtrunk: "Mit Umtrunk" },
+  { tag: 13, name: "Fam. Frankenfeld",                     adresse: "Feldeggstrasse 4",        umtrunk: "Mit Umtrunk" },
+  { tag: 14, name: "Familie Köchli",                       adresse: "Kirchweg 26",             umtrunk: "" },
+  { tag: 15, name: "Familie Bütler",                       adresse: "Brunnmattstrasse 20",     umtrunk: "Mit Umtrunk" },
+  { tag: 16, name: "Familie Furrer",                       adresse: "Kaplaneiweg 1",           umtrunk: "" },
+  { tag: 17, name: "Jubla",                                adresse: "Breitistrasse 18",        umtrunk: "" },
+  { tag: 18, name: "Familie Tschumi",                      adresse: "Lindenbergstrasse 16",    umtrunk: "Mit Umtrunk" },
+  { tag: 19, name: "Familie Widmer",                       adresse: "Zelgli 10",               umtrunk: "" },
+  { tag: 20, name: "Regula Keller (Wollzimmer)",           adresse: "Nadelbandweg 3",          umtrunk: "Mit Umtrunk" },
+  { tag: 21, name: "Dilara Keusch & Pascal Sax",           adresse: "Naglerweg 2",             umtrunk: "Mit Umtrunk" },
+  { tag: 22, name: "Familie Salm",                         adresse: "Rosenweg 1",              umtrunk: "" },
+  { tag: 23, name: "Priska Stadelmann & Tobias Burgener",  adresse: "Brunnmattstrasse 12",     umtrunk: "Mit Umtrunk" },
+  { tag: 24, name: "Kirche",                               adresse: "Kaplaneiweg 2",           umtrunk: "" },
 ];
 ---
 
-<Layout
-    title="Adventsfenster – Frauenverein Sarmenstorf"
-    styleFile="/src/styles/adventsfenster.css"
->
-    <Header />
+<BaseLayout title="Adventsfenster 2025">
 
-    <main>
-        <section class="intro">
-            <div class="container">
-                <h1 class="page-title">Adventsfenster 2025</h1>
-                <p>
-                    Auch dieses Jahr laden wir herzlich zu den traditionellen <strong
-                        >Adventsfenstern</strong
-                    > in Sarmenstorf ein. Vom <strong
-                        >1. bis 24. Dezember</strong
-                    > wird jeden Abend um <strong>18:00 Uhr</strong> ein neues Fenster
-                    feierlich eröffnet. Familien, Vereine, Firmen und die Kirche
-                    gestalten liebevoll ihre Fenster und schenken damit unserer Gemeinde
-                    eine besondere vorweihnachtliche Stimmung.
-                </p>
-                <p>
-                    Einige Gastgeberinnen und Gastgeber laden anschliessend zu
-                    einem kleinen Umtrunk ein – eine wunderbare Gelegenheit,
-                    sich in gemütlicher Runde zu treffen und auszutauschen. Wir
-                    freuen uns auf viele schöne Begegnungen und wünschen allen
-                    eine besinnliche Adventszeit.
-                </p>
+  <section class="intro">
+    <div class="container">
+      <h1 class="page-title">Adventsfenster 2025</h1>
+      <p>
+        Auch dieses Jahr laden wir herzlich zu den traditionellen <strong>Adventsfenstern</strong> in
+        Sarmenstorf ein. Vom <strong>1. bis 24. Dezember</strong> wird jeden Abend um <strong>18:00 Uhr</strong>
+        ein neues Fenster feierlich eröffnet. Familien, Vereine, Firmen und die Kirche gestalten liebevoll
+        ihre Fenster und schenken damit unserer Gemeinde eine besondere vorweihnachtliche Stimmung.
+      </p>
+      <p>
+        Einige Gastgeberinnen und Gastgeber laden anschliessend zu einem kleinen Umtrunk ein – eine wunderbare
+        Gelegenheit, sich in gemütlicher Runde zu treffen und auszutauschen. Wir freuen uns auf viele schöne
+        Begegnungen und wünschen allen eine besinnliche Adventszeit.
+      </p>
+    </div>
+  </section>
+
+  <section class="adventsfenster section">
+    <div class="container">
+      <div class="calendar-grid" id="adv-grid">
+        {fenster.map((f) => (
+          <div
+            class="flip-card"
+            role="button"
+            tabindex="0"
+            aria-label={`Adventsfenster ${f.tag}${f.name ? `: ${f.name}, ${f.adresse}${f.umtrunk ? `, ${f.umtrunk}` : ''}` : ''}`}
+            aria-pressed="false"
+            data-tag={f.tag}
+            data-name={f.name}
+            data-adresse={f.adresse}
+            data-umtrunk={f.umtrunk}
+          >
+            <div class="flip-inner">
+              <div class="flip-front">{f.tag}</div>
+              <div class="flip-back">
+                <span class="back-day">{f.tag}</span>
+                <strong>{f.name}</strong>
+                {f.adresse && <span class="back-address">{f.adresse}</span>}
+                {f.umtrunk && <span class="back-extra">{f.umtrunk}</span>}
+              </div>
             </div>
-        </section>
+          </div>
+        ))}
+      </div>
 
-        <section class="adventsfenster section">
-            <div class="container">
-                <div class="calendar-grid">
-                    {
-                        adventsfenster.map((fenster) => (
-                            <div class="flip-card">
-                                <div class="flip-inner">
-                                    <div class="flip-front">{fenster.tag}</div>
-                                    <div class="flip-back">
-                                        <>
-                                            <strong>{fenster.name}</strong>
-                                            <br />
-                                        </>
-                                        {fenster.adresse}
-                                        <br />
-                                        {fenster.umtrunk}
-                                        <br />
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    }
-                </div>
-            </div>
-        </section>
-    </main>
+      <!-- Gesamtliste -->
+      <div style="margin-top:2rem; text-align:center;">
+        <button id="toggleList" class="list-toggle">Gesamte Liste anzeigen ▼</button>
+      </div>
+      <div id="adv-list" class="adv-list" style="display:none; margin-top:1rem;">
+        <ul style="list-style:none; padding:0; max-width:600px; margin:1rem auto; text-align:left;">
+          {fenster.map((f) => (
+            <li style="padding:8px 0; border-bottom:1px solid #ddd;">
+              <strong>{f.tag}.</strong> {f.name} – {f.adresse}
+              {f.umtrunk && <em style="color:#777;"> ({f.umtrunk})</em>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
 
-    <Footer />
-</Layout>
+</BaseLayout>
+
+<script>
+  // Flip-Karten
+  const grid = document.getElementById('adv-grid');
+  const toggleCard = (card: HTMLElement) => {
+    const flipped = card.classList.toggle('flipped');
+    card.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+  };
+  grid?.addEventListener('click', (e) => {
+    const card = (e.target as HTMLElement).closest('.flip-card') as HTMLElement;
+    if (card) toggleCard(card);
+  });
+  grid?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = (e.target as HTMLElement).closest('.flip-card') as HTMLElement;
+    if (card) { e.preventDefault(); toggleCard(card); }
+  });
+
+  // Gesamtliste Toggle
+  const toggleBtn = document.getElementById('toggleList');
+  const advList = document.getElementById('adv-list');
+  toggleBtn?.addEventListener('click', () => {
+    const isHidden = advList?.style.display === 'none';
+    if (advList) advList.style.display = isHidden ? 'block' : 'none';
+    if (toggleBtn) toggleBtn.textContent = isHidden ? 'Gesamte Liste ausblenden ▲' : 'Gesamte Liste anzeigen ▼';
+  });
+</script>

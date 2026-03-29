@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/weihnachtsbasteln.css';
+
+const gallery = [
+  { src: "/images/weihnachtsbasteln/2025/tasse-1.jpg", alt: "Bemalte Tasse mit Süssigkeiten", caption: "Tasse mit 6 Kaffeekapseln", ratio: "square" },
+  { src: "/images/weihnachtsbasteln/2025/tasse-2.jpg", alt: "Bemalte Tasse mit Schoggi", caption: "Tasse mit eigener Teemischung", ratio: "square" },
+  { src: "/images/weihnachtsbasteln/2025/kaugummi.jpg", alt: "Genähtes Kaugummi-Täschli mit Inhalt", caption: "Kaugummi-Täschli genäht", ratio: "tall" },
+  { src: "/images/weihnachtsbasteln/2025/bilderrahmen-serviettenhalter.jpg", alt: "Bilderrahmen und Serviettenhalter aus Holz", caption: "Bilderrahmen & Serviettenhalter aus Holz", ratio: "wide" },
+  { src: "/images/weihnachtsbasteln/2025/dreidimensionalesbild.jpg", alt: "Dreidimensionales Bild", caption: "Dreidimensionales Bild", ratio: "wide" },
+  { src: "/images/weihnachtsbasteln/2025/windlich.jpg", alt: "Windlicht – Beispielbild", caption: "Windlicht", ratio: "square" },
+  { src: "/images/weihnachtsbasteln/2025/holzscheibe.jpg", alt: "Holzscheibe mit Moosstern", caption: "Holzscheibe mit Nagelbild dekoriert", ratio: "square" },
+  { src: "/images/weihnachtsbasteln/2025/drahtsterne-1.jpg", alt: "Drahtsterne und Draht-Herzen", caption: "Drahtsterne/Herzen 3-er Set", ratio: "tall" },
+  { src: "/images/weihnachtsbasteln/2025/drahtsterne-2.jpg", alt: "Drahtstern auf Stiel", caption: "Drahtsterne/Herzen als Stiele", ratio: "tall" },
+];
+---
+
+<BaseLayout title="Weihnachtsbasteln">
+
+  <section class="ueber-uns">
+    <div class="container text-center">
+      <h1>Weihnachtsbasteln</h1>
+      <p><strong>Samstag, 22. November 2025</strong></p>
+      <p>
+        Von 9 bis 13 Uhr im Pfarreitreff auf Anmeldung.<br />
+        Den <a href="/dokumente/Anmeldeformular_2025.pdf" target="_blank">Flyer</a> und die Fotos der
+        Basteleien findet ihr hier und in der Bibliothek Sarmenstorf.
+      </p>
+      <p>Zuständig ist <strong>Daniela Strebel</strong></p>
+    </div>
+
+    <div class="about-image">
+      <img src="/images/weihnachtsbasteln/logo-weihnachtsbasteln.png" alt="Weihnachtsbasteln Bild" />
+    </div>
+
+    <div class="container text-center">
+      <br />
+      <a href="/dokumente/Anmeldeformular_2025.pdf" target="_blank"><strong>Anmeldeformular</strong></a>
+    </div>
+  </section>
+
+  <section class="section gallery">
+    <div class="container">
+      <h2 class="bastel-title">Muster 2025</h2>
+
+      <div class="gallery-grid" role="list">
+        {gallery.map((item) => (
+          <figure class={`tile tile--ratio-${item.ratio}${item.ratio === 'wide' ? ' tile--wide' : ''}`} role="listitem">
+            <img loading="lazy" src={item.src} alt={item.alt} />
+            <figcaption>{item.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

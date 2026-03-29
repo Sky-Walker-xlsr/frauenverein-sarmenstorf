@@ -1,3 +1,4 @@
+/* ——— Hero/Intro ——— */
 .ueber-uns {
   padding: 60px 0;
   text-align: center;
@@ -26,4 +27,96 @@
   height: auto;
   border-radius: var(--radius);
   object-fit: cover;    /* schneidet Überflüssiges ab */
+  border: 1px solid #0001;
+  box-shadow: 0 6px 18px #00000014;
+  margin: 10px auto 0;
+  display: block;
+}
+
+/* ——— Galerie (modular, wie Vorlage) ——— */
+.gallery { 
+  padding: 10px 0 64px; 
+}
+
+.gallery .bastel-title,
+.gallery .gallery-title {
+  font-size: 1.8rem;
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+/* 12-Spalten-Grid für flexible Anordnung */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 18px;
+}
+
+/* Grund-Kachel */
+.tile {
+  grid-column: span 4;                   /* Standardbreite: 4/12 */
+  background: var(--card);
+  border: 1px solid #0001;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 8px 22px #00000012;
+  transition: transform .12s ease, box-shadow .12s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tile:hover,
+.tile:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px #0000001a;
+}
+
+/* Breite Variante (z. B. Panorama) */
+.tile--wide { 
+  grid-column: span 6;                   /* 6/12 -> doppelt so breit */
+}
+
+/* Bilddarstellung */
+.tile img {
+  width: 100%;
+  height: auto;                          /* Fallback */
+  display: block;
+  object-fit: cover;
+  aspect-ratio: auto;
+}
+
+/* Feste Seitenverhältnisse für ruhiges Raster 
+.tile--ratio-wide   img { aspect-ratio: 16 / 9; }
+.tile--ratio-square img { aspect-ratio: 1 / 1;  }
+.tile--ratio-tall   img { aspect-ratio: 3 / 4;  }
+*/
+
+/* Beschriftung */
+.tile figcaption {
+  padding: 12px 14px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--fg);
+  flex: 0 0 auto;           /* verhindert, dass Caption in der Höhe gestreckt wird */
+  background: var(--card);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .tile { grid-column: span 6; }         /* 2 Spalten */
+  .tile--wide { grid-column: span 12; }  /* volle Breite */
+}
+
+@media (max-width: 640px) {
+  .gallery-grid { gap: 14px; }
+  .tile, .tile--wide { grid-column: span 12; } /* 1 Spalte */
+  .tile figcaption { font-size: .98rem; }
+}
+
+/* ——— Mobile: About-Image ausblenden ——— */
+@media (max-width: 768px) {
+  .about-image {
+    display: none;
+  }
 }

@@ -1,0 +1,53 @@
+---
+import eventsData from '../data/jahresprogramm.json';
+
+interface Event {
+  date_iso: string;
+  title_date: string;
+  text_html?: string;
+  date_label?: string;
+  time?: string;
+  meta?: string;
+}
+
+interface Props {
+  variant?: 'preview' | 'grid' | 'list';
+  limit?: number;
+}
+
+const { variant = 'list', limit } = Astro.props;
+
+const todayIso = new Date().toISOString().slice(0, 10);
+
+let events: Event[] = (eventsData.events as Event[])
+  .filter(ev => (ev.date_iso || '') >= todayIso)
+  .sort((a, b) => (a.date_iso || '').localeCompare(b.date_iso || ''));
+
+if (limit && limit > 0) {
+  events = events.slice(0, limit);
+}
+---
+
+{events.length === 0 ? (
+  <p>Aktuell sind keine bevorstehenden Anlässe erfasst.</p>
+) : (
+  <div class:list={[variant === 'list' ? 'events-list' : 'events-grid', `events-grid--${variant}`]}>
+    {events.map((ev) => (
+      <div class="event-card" data-date={ev.date_iso}>
+        <h3>{ev.title_date}</h3>
+
+        {ev.meta && (
+          <div class="meta">{ev.meta}</div>
+        )}
+
+        {ev.text_html && (
+          <p set:html={ev.text_html} />
+        )}
+
+        {ev.time && (
+          <p><strong>Uhrzeit:</strong> {ev.time} Uhr</p>
+        )}
+      </div>
+    ))}
+  </div>
+)}

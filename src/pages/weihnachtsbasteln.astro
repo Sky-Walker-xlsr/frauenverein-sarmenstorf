@@ -1,37 +1,20 @@
 ---
-import Layout from "../layouts/layout.astro";
-import Header from "../components/header.astro";
-import Footer from "../components/footer.astro";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/weihnachtsbasteln.css';
 ---
 
-<Layout
-    title="Weihnachtsbasteln – Frauenverein Sarmenstorf"
-    styleFile="/src/styles/weihnachtsbasteln.css"
->
-    <Header />
-
-    <main>
-        <section class="ueber-uns">
-            <div class="container text-center">
-                <h1>Weihnachtsbasteln</h1>
-                <p><strong>Samstag, 22. November 2025</strong></p>
-                <p>
-                    Von 9 bis 13 Uhr im Pfarreitreff – mit vielen kreativen
-                    Ideen.<br />
-                    Nach den Herbstferien folgen die Infos und werden die Muster
-                    in der Bibliothek ausgestellt.
-                </p>
-                <p>Zuständig ist <strong>Conni Hubel</strong></p>
-            </div>
-
-            <div class="about-image">
-                <img
-                    src="/images/weihnachtsbasteln/logo-weihnachtsbasteln.png"
-                    alt="Freizeitplausch Bild"
-                />
-            </div>
-        </section>
-    </main>
-
-    <Footer />
-</Layout>
+<BaseLayout title="Weihnachtsbasteln">
+  <section class="ueber-uns">
+    <div class="container text-center">
+      <h1>Weihnachtsbasteln</h1>
+      <p>
+        Das Weihnachtsbasteln findet jeweils Ende November im Pfarreitreff Sarmenstorf statt.<br />
+        Das Anmeldeformular wird Mitte Oktober hochgeladen.
+      </p>
+      <p>Zuständig ist <strong>Vakant</strong></p>
+    </div>
+    <div class="about-image">
+      <img src="/images/weihnachtsbasteln/logo-weihnachtsbasteln.png" alt="Weihnachtsbasteln Bild" />
+    </div>
+  </section>
+</BaseLayout>

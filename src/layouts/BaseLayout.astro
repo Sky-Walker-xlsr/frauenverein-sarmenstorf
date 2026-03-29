@@ -1,0 +1,51 @@
+---
+import Header from '../components/header.astro';
+import Footer from '../components/footer.astro';
+import '../styles/base.css'; // global, auf jeder Seite
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'Frauenverein Sarmenstorf',
+  ogImage = '/images/logo.png',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="google-site-verification" content="QXOIVOMa3fZwVcSWb2sLDzhXdTgYH5rXlGW9IGMewmM" />
+
+    <title>{title} – Frauenverein Sarmenstorf</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+
+    <link rel="icon" type="image/png" href="/images/icon.png" />
+  </head>
+
+  <body>
+    <Header />
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+  </body>
+</html>

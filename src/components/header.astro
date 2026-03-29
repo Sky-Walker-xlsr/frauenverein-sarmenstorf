@@ -1,24 +1,145 @@
+---
+// Nav-Einträge – zentral definiert, wird für Desktop + Mobile verwendet
+const navItems = [
+  { href: "/", label: "Startseite" },
+  { href: "/ueber-uns", label: "Über uns" },
+  {
+    href: "/anlaesse",
+    label: "Anlässe",
+    children: [
+      { href: "/jahresprogramm", label: "Jahresprogramm" },
+      { href: "/freizeitplausch", label: "Freizeitplausch" },
+      { href: "/weihnachtsbasteln", label: "Weihnachtsbasteln" },
+      { href: "/jassdaten", label: "Jassdaten" },
+    ],
+  },
+  { href: "/vorstand", label: "Vorstand" },
+  { href: "/kontakt", label: "Kontakt" },
+];
+---
+
 <header class="site-header">
   <div class="container header-bar">
     <a class="brand-logo" href="/">
       <img src="/images/logo.png" alt="Logo Frauenverein Sarmenstorf" />
     </a>
-    <nav class="nav">
+
+    <!-- Desktop Nav -->
+    <nav class="nav desktop-nav" aria-label="Hauptnavigation">
       <ul>
-        <li><a href="/">Startseite</a></li>
-        <li><a href="/ueber-uns">Über uns</a></li>
-        <li class="has-sub">
-          <a href="/anlaesse">Anlässe <span class="caret">▾</span></a>
-          <ul class="sub">
-            <li><a href="/jahresprogramm">Jahresprogramm</a></li>
-            <li><a href="/freizeitplausch">Freizeitplausch</a></li>
-            <li><a href="/weihnachtsbasteln">Weihnachtsbasteln</a></li>
-          </ul>
-        </li>
-        <li><a href="/vorstand">Vorstand</a></li>
-        <li><a href="/adventsfenster">Adventsfenster</a></li>
-        <li><a href="/kontakt">Kontakt</a></li>
+        {
+          navItems.map((item) => (
+            <li class={item.children ? "has-sub" : ""}>
+              <a href={item.href}>
+                {item.label}
+                {item.children && (
+                  <span class="caret" aria-hidden="true">
+                    ▾
+                  </span>
+                )}
+              </a>
+
+              {item.children && (
+                <ul class="sub">
+                  {item.children.map((child) => (
+                    <li>
+                      <a href={child.href}>{child.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))
+        }
       </ul>
     </nav>
+
+    <!-- Burger Button -->
+    <button
+      class="nav-toggle"
+      id="navToggle"
+      type="button"
+      aria-label="Menü öffnen"
+      aria-controls="mobileOverlay"
+      aria-expanded="false"
+    >
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<!-- Mobile Overlay -->
+<nav
+  class="mobile-overlay"
+  id="mobileOverlay"
+  aria-hidden="true"
+  aria-label="Mobiles Menü"
+>
+  <button
+    class="overlay-close"
+    id="overlayClose"
+    type="button"
+    aria-label="Menü schliessen"
+  >
+    ×
+  </button>
+  <ul>
+    {
+      navItems.map((item) => (
+        <li>
+          <a href={item.href}>{item.label}</a>
+
+          {item.children && (
+            <ul class="overlay-sub">
+              {item.children.map((child) => (
+                <li>
+                  <a href={child.href}>{child.label}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  (function () {
+    const btn = document.getElementById("navToggle") as HTMLButtonElement;
+    const overlay = document.getElementById("mobileOverlay") as HTMLElement;
+    const closeBtn = document.getElementById(
+      "overlayClose",
+    ) as HTMLButtonElement;
+
+    function openNav() {
+      overlay.classList.add("open");
+      btn.classList.add("is-open");
+      btn.setAttribute("aria-expanded", "true");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("no-scroll");
+    }
+
+    function closeNav() {
+      overlay.classList.remove("open");
+      btn.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("no-scroll");
+    }
+
+    btn.addEventListener("click", () =>
+      overlay.classList.contains("open") ? closeNav() : openNav(),
+    );
+    closeBtn.addEventListener("click", closeNav);
+    overlay.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).tagName === "A") closeNav();
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeNav();
+    });
+    window.addEventListener("resize", () => {
+      if (window.matchMedia("(min-width: 851px)").matches) closeNav();
+    });
+  })();
+</script>
