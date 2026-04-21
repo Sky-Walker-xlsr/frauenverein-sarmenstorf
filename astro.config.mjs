@@ -1,6 +1,11 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
+import cloudflare from '@astrojs/cloudflare';
+
 export default defineConfig({
-  site: 'https://frauenverein-sarmenstorf.ch', // deine echte Domain
+  // deine echte Domain
+  site: 'https://frauenverein-sarmenstorf.ch',
+  output: 'server',
+  adapter: cloudflare()
 });
