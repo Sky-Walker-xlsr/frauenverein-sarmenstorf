@@ -17,37 +17,53 @@ interface Props {
 
 const { variant = 'list', limit } = Astro.props;
 
-const todayIso = new Date().toISOString().slice(0, 10);
-
-let events: Event[] = (eventsData.events as Event[])
-  .filter(ev => (ev.date_iso || '') >= todayIso)
+// Alle Events sortiert ins HTML – Filterung passiert client-seitig
+const events: Event[] = (eventsData.events as Event[])
   .sort((a, b) => (a.date_iso || '').localeCompare(b.date_iso || ''));
-
-if (limit && limit > 0) {
-  events = events.slice(0, limit);
-}
 ---
 
-{events.length === 0 ? (
-  <p>Aktuell sind keine bevorstehenden Anlässe erfasst.</p>
-) : (
-  <div class:list={[variant === 'list' ? 'events-list' : 'events-grid', `events-grid--${variant}`]}>
-    {events.map((ev) => (
-      <div class="event-card" data-date={ev.date_iso}>
-        <h3>{ev.title_date}</h3>
+<div
+  class:list={[variant === 'list' ? 'events-list' : 'events-grid', `events-grid--${variant}`]}
+  data-eventlist
+  data-variant={variant}
+  data-limit={limit ?? ''}
+>
+  {events.map((ev) => (
+    <div class="event-card" data-date={ev.date_iso} style="display:none">
+      <h3>{ev.title_date}</h3>
 
-        {ev.meta && (
-          <div class="meta">{ev.meta}</div>
-        )}
+      {ev.meta && <div class="meta">{ev.meta}</div>}
 
-        {ev.text_html && (
-          <p set:html={ev.text_html} />
-        )}
+      {ev.text_html && <p set:html={ev.text_html} />}
 
-        {ev.time && (
-          <p><strong>Uhrzeit:</strong> {ev.time} Uhr</p>
-        )}
-      </div>
-    ))}
-  </div>
-)}
+      {ev.time && <p><strong>Uhrzeit:</strong> {ev.time} Uhr</p>}
+    </div>
+  ))}
+</div>
+
+<p class="events-empty" data-empty style="display:none">
+  Aktuell sind keine bevorstehenden Anlässe erfasst.
+</p>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-eventlist]').forEach((container) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const limit = container.dataset.limit ? parseInt(container.dataset.limit) : null;
+
+    const cards = [...container.querySelectorAll<HTMLElement>('.event-card')];
+
+    // Nur zukünftige Events anzeigen
+    const upcoming = cards.filter(card => (card.dataset.date ?? '') >= today);
+
+    // Limit anwenden
+    const visible = limit ? upcoming.slice(0, limit) : upcoming;
+    visible.forEach(card => card.style.display = '');
+
+    // Leer-Meldung anzeigen wenn nichts übrig
+    const emptyMsg = container.nextElementSibling as HTMLElement | null;
+    if (visible.length === 0 && emptyMsg?.dataset.empty !== undefined) {
+      container.style.display = 'none';
+      emptyMsg.style.display = '';
+    }
+  });
+</script>
