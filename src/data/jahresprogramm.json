@@ -5,19 +5,21 @@
         "date_iso": "2026-04-17",
         "title_date": "Freizeitplausch (7. bis 17. April 2026)",
         "text_html": "Sechs spannende Angebote für die Kinder während der Frühlingsferien. <br /><p><strong>Der falkner hat bestätigt: wir sind draussen!</strong></p>",
-        "date_label": "7.–17. April 2026"
+        "date_label": "7.–17. April 2026",
+        "time": "18:30"
       },
       {
         "date_iso": "2026-05-07",
         "title_date": "Maiandacht (7. Mai 2026)",
-        "text_html": "Die Maiandacht findet in diesem Jahr in der Kapelle Niesenberg statt.<br /><p><strong>Treffpunkt:</strong> Parkplatz Kirche</p>",
+        "text_html": "Die Maiandacht findet in diesem Jahr in der Kapelle Niesenberg statt.<br /><p><strong>Treffpunkt:</strong> Parkplatz Kirche</p> <p><strong>Zu Fuss:</strong> 18:30</p> <p><strong>Fahrgemeinschaften:</strong> 19:15</p>",
         "date_label": "07. Mai 2026"
       },
       {
         "date_iso": "2026-05-19",
         "title_date": "Führung Cinema8 Schöftland (19. Mai 2026)",
-        "text_html": "Wir erhalten eine spannende Führung hinter der Leinwand. Im Anschluss decken wir uns mit Snacks ein und geniessen eine Kino-Vorstellung gem. Programm.<br />Treffpunkt: 17.20 Uhr Lindenplatz oder 17.55 Uhr Cinema8 in Schöftland.<br />Infos: <a href=\"/dokumente/Einladung_Cinema_8.pdf\" target=\"_blank\"><strong>Einladung</strong></a>",
-        "date_label": "19. Mai 2026"
+        "text_html": "Wir erhalten eine spannende Führung hinter der Leinwand. Im Anschluss decken wir uns mit Snacks ein und geniessen eine Kino-Vorstellung gem. Programm.<br />Treffpunkt: 17.00 Uhr Lindenplatz oder 17.55 Uhr Cinema8 in Schöftland.<br />Infos: <a href=\"/dokumente/Einladung_Cinema_8.pdf\" target=\"_blank\"><strong>Einladung</strong></a>",
+        "date_label": "19. Mai 2026",
+        "time": "17:00"
       },
       {
         "date_iso": "2026-06-24",
