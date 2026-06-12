@@ -56,9 +56,16 @@ runtime (build still succeeds since data loading is client-side).
     lines — this is how admins add ad-hoc fields (e.g. a start time) without schema changes.
   - `variant` prop (`'preview' | 'grid' | 'list'`) only changes the wrapper CSS class
     (`events-list` vs `events-grid events-grid--<variant>`) — filtering logic is identical.
-- **`src/pages/galerie.astro`** — fetches `"frv-p-01".gallery_images` client-side, resolves
-  each `storage_path` to a public URL via `supabase.storage.from(GALLERY_BUCKET).getPublicUrl()`,
-  and renders a grid with a simple lightbox (click to enlarge, `Esc`/backdrop click to close).
+- **`src/pages/galerie.astro`** — fetches `"frv-p-01".gallery_albums` and `gallery_images`
+  client-side, resolves each `storage_path` to a public URL via
+  `supabase.storage.from(GALLERY_BUCKET).getPublicUrl()`. For each album ("Anlass") that has
+  images, renders a `.gallery-album` section (title + optional description) containing a
+  `.carousel`/`.carousel-track` — the track is the image list duplicated once and animated via
+  the `gallery-scroll` CSS keyframe (`translateX(0)` → `translateX(-50%)`, linear, infinite),
+  which gives a seamless right-to-left looping carousel; duration scales with image count
+  (`images.length * 6s`). Images with `album_id IS NULL` render below the albums in the original
+  `.gallery` grid. Shared lightbox (click to enlarge, `Esc`/backdrop click to close) works for
+  both carousel and grid images.
 - **Forms** (e.g. `freizeitplausch_form.astro`) submit to **Formspree** (`action="https://formspree.io/f/..."`)
   via a `fetch` POST with `FormData` in an inline `<script>`, with client-side validation,
   a hidden `message` field built by a `buildSummary()` function that concatenates form values
@@ -77,10 +84,16 @@ JS client with `db: { schema: 'frv-p-01' }` so `.from()`/`.rpc()` calls don't ne
   policies, seed data). Run manually in the Supabase SQL editor — there is no migration runner.
   Re-running is mostly idempotent (`create table if not exists`, `on conflict do nothing`) except
   for the `create policy` statements, which fail if already present.
+- **`supabase/002_gallery_albums.sql`** — incremental migration adding `gallery_albums` +
+  `gallery_images.album_id` + RLS (also folded into `schema.sql` for fresh installs). Ends with
+  `notify pgrst, 'reload schema'` so PostgREST picks up the new table/column without a restart.
 - **Tables**: `"frv-p-01".events` (Jahresprogramm; includes a free-form `extra jsonb` column for
-  admin-defined fields), `"frv-p-01".gallery_images` (`storage_path` + `alt` + `sort_order`),
-  `"frv-p-01".admins` (allow-list: `user_id` → grants admin write access, checked via the
-  `"frv-p-01".is_admin()` SQL function).
+  admin-defined fields), `"frv-p-01".gallery_images` (`storage_path` + `alt` + `sort_order` +
+  nullable `album_id` FK), `"frv-p-01".gallery_albums` ("Anlässe": `title`, `description`,
+  `sort_order` — see `supabase/002_gallery_albums.sql`), `"frv-p-01".admins` (allow-list:
+  `user_id` → grants admin write access, checked via the `"frv-p-01".is_admin()` SQL function).
+  `gallery_images.album_id IS NULL` means the image is unassigned (`on delete set null`, so
+  deleting an album just unassigns its images rather than deleting them).
 - **Storage**: public bucket **`frv-buk-p-01`** for gallery images (`GALLERY_BUCKET` constant in
   `src/lib/supabase.ts`). Public read; insert/update/delete restricted to admins via
   `storage.objects` RLS policies that call `is_admin()`.
@@ -105,8 +118,15 @@ Single-page, fully client-side (no SSR/middleware — this is a static site). On
   clear formatting) whose `innerHTML` is saved as `text_html`. "Zusätzliche Felder" is a
   key/value list UI that serializes to the `extra` jsonb column.
 - **Galerie tab**: uploads files to the `frv-buk-p-01` bucket (random UUID filenames) and
-  inserts a row per file into `gallery_images`; delete removes both the storage object and the
-  row.
+  inserts a row per file into `gallery_images` (unassigned, `album_id = null`); delete removes
+  both the storage object and the row. Two-column layout:
+  - Left: "Unzugewiesene Bilder" pool — all images with `album_id = null`.
+  - Right: "Anlässe" — `gallery_albums` rendered as cards with editable title/description
+    (saved on `blur` via `updateAlbum()`) and an `.album-dropzone` showing assigned images.
+    "+ Neuer Anlass" inserts a new album row.
+  - Drag-and-drop (native HTML5 DnD: `draggable`, `dragstart`/`dragover`/`drop`) lets admins
+    drag a `.gallery-thumb` from the pool into an album's dropzone (or back), calling
+    `updateImageAlbum()` → `gallery_images.update({ album_id })`.
 
 ## Content language & conventions
 

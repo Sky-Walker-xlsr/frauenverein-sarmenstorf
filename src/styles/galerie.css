@@ -6,6 +6,48 @@
 
 .gallery-empty { color: var(--muted); }
 
+/* =================== Albums (Anlässe) carousels =================== */
+.gallery-album { margin-bottom: 40px; }
+.gallery-album h2 { margin-bottom: 4px; }
+.gallery-album-description { color: var(--muted); margin-bottom: 14px; }
+
+.carousel {
+  overflow: hidden;
+  width: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+
+.carousel-track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  animation-name: gallery-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.carousel:hover .carousel-track { animation-play-state: paused; }
+
+.carousel-track img {
+  flex: 0 0 auto;
+  width: 320px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+@media (max-width: 700px) {
+  .carousel-track img { width: 220px; height: 160px; }
+}
+
+@keyframes gallery-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* =================== Lightbox =================== */
 .lightbox {
   position: fixed;

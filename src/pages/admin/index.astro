@@ -51,7 +51,21 @@ import '../../styles/admin.css';
             <input type="file" id="gallery-upload" accept="image/*" multiple />
           </div>
           <p class="admin-error" id="gallery-error"></p>
-          <div id="gallery-list" class="admin-gallery-grid"></div>
+
+          <div class="gallery-admin-layout">
+            <div class="gallery-pool" id="gallery-pool">
+              <h3>Unzugewiesene Bilder</h3>
+              <p class="gallery-hint">Bilder von hier in einen Anlass ziehen, um sie zuzuweisen.</p>
+              <div id="gallery-pool-list" class="gallery-pool-list"></div>
+            </div>
+            <div class="gallery-albums">
+              <div class="gallery-albums-header">
+                <h3>Anlässe</h3>
+                <button id="add-album-btn" class="primary" type="button">+ Neuer Anlass</button>
+              </div>
+              <div id="gallery-albums-list"></div>
+            </div>
+          </div>
         </div>
 
         <dialog id="event-dialog">
@@ -132,6 +146,14 @@ import '../../styles/admin.css';
     id: string;
     storage_path: string;
     alt: string | null;
+    album_id: string | null;
+  }
+
+  interface AlbumRow {
+    id: string;
+    title: string;
+    description: string | null;
+    sort_order: number;
   }
 
   // ---- View elements --------------------------------------------------
@@ -436,45 +458,172 @@ import '../../styles/admin.css';
   });
 
   // ---- Galerie -------------------------------------------------------------
-  const galleryListEl = document.getElementById('gallery-list') as HTMLElement;
+  const galleryPoolListEl = document.getElementById('gallery-pool-list') as HTMLElement;
+  const galleryAlbumsListEl = document.getElementById('gallery-albums-list') as HTMLElement;
+  const addAlbumBtn = document.getElementById('add-album-btn') as HTMLButtonElement;
   const galleryUploadInput = document.getElementById('gallery-upload') as HTMLInputElement;
   const galleryErrorEl = document.getElementById('gallery-error') as HTMLElement;
 
-  async function loadGallery() {
-    galleryErrorEl.textContent = '';
-    galleryListEl.innerHTML = '';
+  function createGalleryThumb(img: GalleryRow): HTMLElement {
+    const { data: urlData } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(img.storage_path);
 
-    const { data, error } = await supabase
-      .from('gallery_images')
-      .select('*')
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
+    const item = document.createElement('div');
+    item.className = 'gallery-thumb';
+    item.draggable = true;
+    item.dataset.imageId = img.id;
 
+    const el = document.createElement('img');
+    el.src = urlData.publicUrl;
+    el.alt = img.alt ?? '';
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'gallery-thumb-delete';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Bild löschen';
+    delBtn.addEventListener('click', () => deleteGalleryImage(img));
+
+    item.append(el, delBtn);
+
+    item.addEventListener('dragstart', (e) => {
+      e.dataTransfer?.setData('text/plain', img.id);
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+
+    return item;
+  }
+
+  function setupDropZone(zone: HTMLElement, albumId: string | null) {
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const imageId = e.dataTransfer?.getData('text/plain');
+      if (!imageId) return;
+      await updateImageAlbum(imageId, albumId);
+    });
+  }
+
+  async function updateImageAlbum(imageId: string, albumId: string | null) {
+    const { error } = await supabase.from('gallery_images').update({ album_id: albumId }).eq('id', imageId);
     if (error) {
       galleryErrorEl.textContent = error.message;
       return;
     }
+    await loadGallery();
+  }
 
-    (data as GalleryRow[]).forEach((img) => {
-      const { data: urlData } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(img.storage_path);
+  async function loadGallery() {
+    galleryErrorEl.textContent = '';
+    galleryPoolListEl.innerHTML = '';
+    galleryAlbumsListEl.innerHTML = '';
 
-      const item = document.createElement('div');
-      item.className = 'admin-gallery-item';
+    const [albumsRes, imagesRes] = await Promise.all([
+      supabase.from('gallery_albums').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true }),
+      supabase.from('gallery_images').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true }),
+    ]);
 
-      const el = document.createElement('img');
-      el.src = urlData.publicUrl;
-      el.alt = img.alt ?? '';
+    if (albumsRes.error) {
+      galleryErrorEl.textContent = albumsRes.error.message;
+      return;
+    }
+    if (imagesRes.error) {
+      galleryErrorEl.textContent = imagesRes.error.message;
+      return;
+    }
 
-      const delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.className = 'danger';
-      delBtn.textContent = 'Löschen';
-      delBtn.addEventListener('click', () => deleteGalleryImage(img));
+    const albums = albumsRes.data as AlbumRow[];
+    const images = imagesRes.data as GalleryRow[];
 
-      item.append(el, delBtn);
-      galleryListEl.appendChild(item);
+    // Pool: unassigned images.
+    setupDropZone(galleryPoolListEl, null);
+    const poolImages = images.filter((img) => !img.album_id);
+    if (poolImages.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'gallery-hint';
+      empty.textContent = 'Keine unzugewiesenen Bilder.';
+      galleryPoolListEl.appendChild(empty);
+    } else {
+      poolImages.forEach((img) => galleryPoolListEl.appendChild(createGalleryThumb(img)));
+    }
+
+    // Albums ("Anlässe").
+    albums.forEach((album) => {
+      const card = document.createElement('div');
+      card.className = 'album-card';
+      card.dataset.albumId = album.id;
+
+      const header = document.createElement('div');
+      header.className = 'album-header';
+
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.className = 'album-title';
+      titleInput.placeholder = 'Titel des Anlasses';
+      titleInput.value = album.title;
+      titleInput.addEventListener('blur', () => updateAlbum(album.id, { title: titleInput.value }));
+
+      const deleteAlbumBtn = document.createElement('button');
+      deleteAlbumBtn.type = 'button';
+      deleteAlbumBtn.className = 'danger';
+      deleteAlbumBtn.textContent = 'Anlass löschen';
+      deleteAlbumBtn.addEventListener('click', () => deleteAlbum(album.id));
+
+      header.append(titleInput, deleteAlbumBtn);
+
+      const descriptionInput = document.createElement('textarea');
+      descriptionInput.className = 'album-description';
+      descriptionInput.placeholder = 'Beschreibung';
+      descriptionInput.value = album.description ?? '';
+      descriptionInput.addEventListener('blur', () => updateAlbum(album.id, { description: descriptionInput.value || null }));
+
+      const dropzone = document.createElement('div');
+      dropzone.className = 'album-dropzone';
+
+      const albumImages = images.filter((img) => img.album_id === album.id);
+      if (albumImages.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'gallery-hint';
+        empty.textContent = 'Bilder hierher ziehen.';
+        dropzone.appendChild(empty);
+      } else {
+        albumImages.forEach((img) => dropzone.appendChild(createGalleryThumb(img)));
+      }
+      setupDropZone(dropzone, album.id);
+
+      card.append(header, descriptionInput, dropzone);
+      galleryAlbumsListEl.appendChild(card);
     });
   }
+
+  async function updateAlbum(id: string, payload: Partial<Pick<AlbumRow, 'title' | 'description'>>) {
+    const { error } = await supabase.from('gallery_albums').update(payload).eq('id', id);
+    if (error) galleryErrorEl.textContent = error.message;
+  }
+
+  async function deleteAlbum(id: string) {
+    if (!confirm('Diesen Anlass wirklich löschen? Zugewiesene Bilder werden nicht gelöscht, sondern wieder unzugewiesen.')) return;
+    const { error } = await supabase.from('gallery_albums').delete().eq('id', id);
+    if (error) {
+      galleryErrorEl.textContent = error.message;
+      return;
+    }
+    await loadGallery();
+  }
+
+  addAlbumBtn.addEventListener('click', async () => {
+    const { error } = await supabase.from('gallery_albums').insert({ title: 'Neuer Anlass', description: '' });
+    if (error) {
+      galleryErrorEl.textContent = error.message;
+      return;
+    }
+    await loadGallery();
+  });
 
   async function deleteGalleryImage(img: GalleryRow) {
     if (!confirm('Dieses Bild wirklich löschen?')) return;

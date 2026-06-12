@@ -8,6 +8,8 @@ import '../styles/galerie.css';
     <div class="container">
       <h1>Galerie</h1>
 
+      <div id="albums"></div>
+
       <div class="gallery" id="gallery"></div>
 
       <p class="gallery-empty" id="gallery-empty" style="display:none">
@@ -25,11 +27,19 @@ import '../styles/galerie.css';
 <script>
   import { supabase, GALLERY_BUCKET } from '../lib/supabase';
 
+  interface AlbumRow {
+    id: string;
+    title: string;
+    description: string | null;
+  }
+
   interface GalleryImage {
     storage_path: string;
     alt: string | null;
+    album_id: string | null;
   }
 
+  const albumsEl = document.getElementById('albums') as HTMLElement;
   const gallery = document.getElementById('gallery') as HTMLElement;
   const empty = document.getElementById('gallery-empty') as HTMLElement;
   const lightbox = document.getElementById('lightbox') as HTMLElement;
@@ -55,26 +65,76 @@ import '../styles/galerie.css';
     if (e.key === 'Escape') closeLightbox();
   });
 
-  (async () => {
-    const { data, error } = await supabase
-      .from('gallery_images')
-      .select('storage_path, alt')
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
+  function makeImg(img: GalleryImage): HTMLImageElement {
+    const { data: urlData } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(img.storage_path);
+    const el = document.createElement('img');
+    el.src = urlData.publicUrl;
+    el.alt = img.alt ?? '';
+    el.loading = 'lazy';
+    el.addEventListener('click', () => openLightbox(el.src, el.alt));
+    return el;
+  }
 
-    if (error || !data || data.length === 0) {
+  function buildCarousel(images: GalleryImage[]): HTMLElement {
+    const carousel = document.createElement('div');
+    carousel.className = 'carousel';
+
+    const track = document.createElement('div');
+    track.className = 'carousel-track';
+
+    // Duplicate the sequence so the looping animation (0% -> -50%) is seamless.
+    [...images, ...images].forEach((img) => track.appendChild(makeImg(img)));
+
+    // Roughly constant speed regardless of image count.
+    track.style.animationDuration = `${images.length * 6}s`;
+
+    carousel.appendChild(track);
+    return carousel;
+  }
+
+  (async () => {
+    const [albumsRes, imagesRes] = await Promise.all([
+      supabase.from('gallery_albums').select('id, title, description').order('sort_order', { ascending: true }).order('created_at', { ascending: true }),
+      supabase
+        .from('gallery_images')
+        .select('storage_path, alt, album_id')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true }),
+    ]);
+
+    const albums = (albumsRes.data ?? []) as AlbumRow[];
+    const images = (imagesRes.data ?? []) as GalleryImage[];
+
+    // Albums with their assigned pictures, as rotating carousels.
+    albums.forEach((album) => {
+      const albumImages = images.filter((img) => img.album_id === album.id);
+      if (albumImages.length === 0) return;
+
+      const section = document.createElement('section');
+      section.className = 'gallery-album';
+
+      const title = document.createElement('h2');
+      title.textContent = album.title;
+      section.appendChild(title);
+
+      if (album.description) {
+        const desc = document.createElement('p');
+        desc.className = 'gallery-album-description';
+        desc.textContent = album.description;
+        section.appendChild(desc);
+      }
+
+      section.appendChild(buildCarousel(albumImages));
+      albumsEl.appendChild(section);
+    });
+
+    if (images.length === 0) {
       empty.style.display = '';
       return;
     }
 
-    (data as GalleryImage[]).forEach((img) => {
-      const { data: urlData } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(img.storage_path);
-      const el = document.createElement('img');
-      el.src = urlData.publicUrl;
-      el.alt = img.alt ?? '';
-      el.loading = 'lazy';
-      el.addEventListener('click', () => openLightbox(el.src, el.alt));
-      gallery.appendChild(el);
-    });
+    // Remaining unassigned images, as a plain grid (as before).
+    const poolImages = images.filter((img) => !img.album_id);
+    poolImages.forEach((img) => gallery.appendChild(makeImg(img)));
   })();
 </script>
