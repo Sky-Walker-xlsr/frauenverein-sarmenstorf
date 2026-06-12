@@ -1,57 +1,80 @@
-<!DOCTYPE html>
-<html lang="de-CH">
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/galerie.css';
+---
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Galerie – Frauenverein Sarmenstorf</title>
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/galerie.css">
-    <script defer src="js/main.js"></script>
-</head>
+<BaseLayout title="Galerie" description="Eindrücke von unseren Anlässen.">
+  <section class="section">
+    <div class="container">
+      <h1>Galerie</h1>
 
-<body>
-    <header class="site-header">
-        <div class="container header-bar">
-            <a class="brand" href="homepage.html">
-                <img class="logo" src="images/placeholder.jpg" alt="Logo">
-                <span>Frauenverein Sarmenstorf</span>
-            </a>
-            <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Menü</button>
-            <nav id="site-nav" class="nav">
-                <a href="homepage.html">Start</a>
-                <a href="ueber-uns.html">Über uns</a>
-                <a href="jahresprogramm.html">Jahresprogramm</a>
-                <a href="anlaesse.html">Anlässe</a>
-                <a class="active" href="galerie.html">Galerie</a>
-                <a href="vorstand.html">Vorstand</a>
-                <a href="kontakt.html">Kontakt</a>
-            </nav>
-        </div>
-    </header>
+      <div class="gallery" id="gallery"></div>
 
-    <main>
-        <section class="section">
-            <div class="container">
-                <h1>Galerie</h1>
-                <div class="gallery">
-                    <img src="images/placeholder.jpg" alt="Bild 1" onclick="openLightbox(this.src)">
-                    <img src="images/placeholder.jpg" alt="Bild 2" onclick="openLightbox(this.src)">
-                    <img src="images/placeholder.jpg" alt="Bild 3" onclick="openLightbox(this.src)">
-                    <img src="images/placeholder.jpg" alt="Bild 4" onclick="openLightbox(this.src)">
-                </div>
-            </div>
-        </section>
-    </main>
+      <p class="gallery-empty" id="gallery-empty" style="display:none">
+        Aktuell sind keine Bilder vorhanden.
+      </p>
+    </div>
+  </section>
 
-    <footer class="site-footer">
-        <div class="container footer-grid">
-            <div><strong>Frauenverein Sarmenstorf</strong><br>5614 Sarmenstorf</div>
-            <div><strong>Kontakt</strong><br><a href="mailto:frauen.sarmi@gmx.ch">frauen.sarmi@gmx.ch</a></div>
-            <div><strong>Folgen</strong><br><a href="#">Facebook</a> · <a href="#">Instagram</a></div>
-        </div>
-        <div class="container legal">© <span id="year"></span> Frauenverein Sarmenstorf</div>
-    </footer>
-</body>
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Schliessen">&times;</button>
+    <img id="lightboxImg" src="" alt="" />
+  </div>
+</BaseLayout>
 
-</html>
+<script>
+  import { supabase, GALLERY_BUCKET } from '../lib/supabase';
+
+  interface GalleryImage {
+    storage_path: string;
+    alt: string | null;
+  }
+
+  const gallery = document.getElementById('gallery') as HTMLElement;
+  const empty = document.getElementById('gallery-empty') as HTMLElement;
+  const lightbox = document.getElementById('lightbox') as HTMLElement;
+  const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement;
+  const lightboxClose = document.getElementById('lightboxClose') as HTMLButtonElement;
+
+  function openLightbox(src: string, alt: string) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt;
+    lightbox.classList.add('open');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    lightboxImg.src = '';
+  }
+
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  (async () => {
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .select('storage_path, alt')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (error || !data || data.length === 0) {
+      empty.style.display = '';
+      return;
+    }
+
+    (data as GalleryImage[]).forEach((img) => {
+      const { data: urlData } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(img.storage_path);
+      const el = document.createElement('img');
+      el.src = urlData.publicUrl;
+      el.alt = img.alt ?? '';
+      el.loading = 'lazy';
+      el.addEventListener('click', () => openLightbox(el.src, el.alt));
+      gallery.appendChild(el);
+    });
+  })();
+</script>

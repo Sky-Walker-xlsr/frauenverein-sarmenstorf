@@ -1,0 +1,511 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/admin.css';
+---
+
+<BaseLayout title="Admin" description="Verwaltung Jahresprogramm &amp; Galerie">
+  <section class="section">
+    <div class="container admin-box">
+
+      <div id="admin-login">
+        <h1>Admin Login</h1>
+        <form id="login-form">
+          <div class="admin-field">
+            <label for="login-email">E-Mail</label>
+            <input type="email" id="login-email" required autocomplete="email" />
+          </div>
+          <div class="admin-field">
+            <label for="login-password">Passwort</label>
+            <input type="password" id="login-password" required autocomplete="current-password" />
+          </div>
+          <button type="submit" class="primary">Anmelden</button>
+          <p class="admin-error" id="login-error"></p>
+        </form>
+      </div>
+
+      <div id="admin-unauthorized" hidden>
+        <h1>Kein Zugriff</h1>
+        <p>Dieses Konto hat keine Admin-Berechtigung für diese Seite.</p>
+        <button id="unauthorized-logout" type="button">Abmelden</button>
+      </div>
+
+      <div id="admin-dashboard" hidden>
+        <div class="admin-header">
+          <h1>Admin</h1>
+          <button id="logout-btn" type="button">Abmelden</button>
+        </div>
+
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" data-tab="events" type="button">Jahresprogramm</button>
+          <button class="admin-tab-btn" data-tab="gallery" type="button">Galerie</button>
+        </div>
+
+        <div id="tab-events" class="admin-tab-panel">
+          <button id="add-event-btn" class="primary" type="button">+ Neuer Termin</button>
+          <div id="events-list" style="margin-top:16px"></div>
+        </div>
+
+        <div id="tab-gallery" class="admin-tab-panel" hidden>
+          <div class="admin-field">
+            <label for="gallery-upload">Bilder hochladen</label>
+            <input type="file" id="gallery-upload" accept="image/*" multiple />
+          </div>
+          <p class="admin-error" id="gallery-error"></p>
+          <div id="gallery-list" class="admin-gallery-grid"></div>
+        </div>
+
+        <dialog id="event-dialog">
+          <h2 id="event-dialog-title">Termin</h2>
+          <form id="event-form">
+            <div class="admin-form-row">
+              <div class="admin-field">
+                <label for="ev-date-iso">Datum</label>
+                <input type="date" id="ev-date-iso" required />
+              </div>
+              <div class="admin-field">
+                <label for="ev-date-label">Datumstext (Anzeige)</label>
+                <input type="text" id="ev-date-label" placeholder="z.B. 12. März 2027" />
+              </div>
+              <div class="admin-field">
+                <label for="ev-time">Uhrzeit</label>
+                <input type="text" id="ev-time" placeholder="z.B. 19:30" />
+              </div>
+            </div>
+
+            <div class="admin-field">
+              <label for="ev-title">Titel</label>
+              <input type="text" id="ev-title" required placeholder="z.B. Generalversammlung (12. März 2027)" />
+            </div>
+
+            <div class="admin-field">
+              <label for="ev-meta">Meta (optional, kleine Notiz über dem Text)</label>
+              <input type="text" id="ev-meta" />
+            </div>
+
+            <div class="admin-field">
+              <label>Beschreibung</label>
+              <div class="admin-editor-toolbar">
+                <button type="button" data-cmd="bold" title="Fett"><strong>B</strong></button>
+                <button type="button" data-cmd="uppercase" title="Auswahl in Grossbuchstaben">AA</button>
+                <input type="color" id="ev-color" title="Textfarbe für Auswahl" value="#d62828" />
+                <button type="button" id="ev-color-apply" title="Farbe auf Auswahl anwenden">Farbe</button>
+                <button type="button" id="ev-clear-format" title="Formatierung entfernen">Format entfernen</button>
+              </div>
+              <div id="ev-editor" class="admin-editor" contenteditable="true"></div>
+            </div>
+
+            <div class="admin-field">
+              <label>Zusätzliche Felder</label>
+              <div id="ev-extra-fields"></div>
+              <button type="button" id="ev-add-extra">+ Feld hinzufügen</button>
+            </div>
+
+            <p class="admin-error" id="event-error"></p>
+
+            <div class="admin-dialog-actions">
+              <button type="button" id="event-cancel">Abbrechen</button>
+              <button type="submit" class="primary" id="event-save">Speichern</button>
+            </div>
+          </form>
+        </dialog>
+      </div>
+
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { supabase, GALLERY_BUCKET } from '../../lib/supabase';
+
+  interface EventRow {
+    id: string;
+    date_iso: string;
+    title_date: string;
+    date_label: string | null;
+    time: string | null;
+    meta: string | null;
+    text_html: string | null;
+    extra: Record<string, string> | null;
+  }
+
+  interface GalleryRow {
+    id: string;
+    storage_path: string;
+    alt: string | null;
+  }
+
+  // ---- View elements --------------------------------------------------
+  const loginEl = document.getElementById('admin-login') as HTMLElement;
+  const unauthorizedEl = document.getElementById('admin-unauthorized') as HTMLElement;
+  const dashboardEl = document.getElementById('admin-dashboard') as HTMLElement;
+
+  const loginForm = document.getElementById('login-form') as HTMLFormElement;
+  const loginError = document.getElementById('login-error') as HTMLElement;
+  const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
+  const unauthorizedLogoutBtn = document.getElementById('unauthorized-logout') as HTMLButtonElement;
+
+  function showView(view: 'login' | 'unauthorized' | 'dashboard') {
+    loginEl.hidden = view !== 'login';
+    unauthorizedEl.hidden = view !== 'unauthorized';
+    dashboardEl.hidden = view !== 'dashboard';
+  }
+
+  async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      showView('login');
+      return;
+    }
+
+    const { data: isAdmin } = await supabase.rpc('is_admin');
+    if (isAdmin) {
+      showView('dashboard');
+      await loadEvents();
+      await loadGallery();
+    } else {
+      showView('unauthorized');
+    }
+  }
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.textContent = '';
+    const email = (document.getElementById('login-email') as HTMLInputElement).value;
+    const password = (document.getElementById('login-password') as HTMLInputElement).value;
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      loginError.textContent = error.message;
+      return;
+    }
+    await checkSession();
+  });
+
+  async function logout() {
+    await supabase.auth.signOut();
+    showView('login');
+  }
+  logoutBtn.addEventListener('click', logout);
+  unauthorizedLogoutBtn.addEventListener('click', logout);
+
+  // ---- Tabs --------------------------------------------------------------
+  const tabButtons = document.querySelectorAll<HTMLButtonElement>('.admin-tab-btn');
+  const eventsPanel = document.getElementById('tab-events') as HTMLElement;
+  const galleryPanel = document.getElementById('tab-gallery') as HTMLElement;
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      eventsPanel.hidden = tab !== 'events';
+      galleryPanel.hidden = tab !== 'gallery';
+    });
+  });
+
+  // ---- Jahresprogramm: list -----------------------------------------------
+  const eventsListEl = document.getElementById('events-list') as HTMLElement;
+  const addEventBtn = document.getElementById('add-event-btn') as HTMLButtonElement;
+
+  async function loadEvents() {
+    eventsListEl.innerHTML = '<p>Lade…</p>';
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date_iso', { ascending: true });
+
+    if (error) {
+      eventsListEl.innerHTML = `<p class="admin-error">${error.message}</p>`;
+      return;
+    }
+
+    eventsListEl.innerHTML = '';
+    (data as EventRow[]).forEach((ev) => {
+      const item = document.createElement('div');
+      item.className = 'admin-event-item';
+
+      const info = document.createElement('div');
+      info.className = 'admin-event-info';
+      const title = document.createElement('strong');
+      title.textContent = ev.title_date;
+      const date = document.createElement('span');
+      date.className = 'admin-event-date';
+      date.textContent = ev.date_label ? `${ev.date_label} (${ev.date_iso})` : ev.date_iso;
+      info.append(title, date);
+
+      const actions = document.createElement('div');
+      actions.className = 'admin-event-actions';
+
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.textContent = 'Bearbeiten';
+      editBtn.addEventListener('click', () => openEventDialog(ev));
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'danger';
+      deleteBtn.textContent = 'Löschen';
+      deleteBtn.addEventListener('click', () => deleteEvent(ev.id));
+
+      actions.append(editBtn, deleteBtn);
+      item.append(info, actions);
+      eventsListEl.appendChild(item);
+    });
+  }
+
+  async function deleteEvent(id: string) {
+    if (!confirm('Diesen Termin wirklich löschen?')) return;
+    const { error } = await supabase.from('events').delete().eq('id', id);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    await loadEvents();
+  }
+
+  // ---- Jahresprogramm: edit dialog ---------------------------------------
+  const eventDialog = document.getElementById('event-dialog') as HTMLDialogElement;
+  const eventDialogTitle = document.getElementById('event-dialog-title') as HTMLElement;
+  const eventForm = document.getElementById('event-form') as HTMLFormElement;
+  const eventError = document.getElementById('event-error') as HTMLElement;
+  const eventSaveBtn = document.getElementById('event-save') as HTMLButtonElement;
+  const eventCancelBtn = document.getElementById('event-cancel') as HTMLButtonElement;
+
+  const dateIsoInput = document.getElementById('ev-date-iso') as HTMLInputElement;
+  const dateLabelInput = document.getElementById('ev-date-label') as HTMLInputElement;
+  const timeInput = document.getElementById('ev-time') as HTMLInputElement;
+  const titleInput = document.getElementById('ev-title') as HTMLInputElement;
+  const metaInput = document.getElementById('ev-meta') as HTMLInputElement;
+  const editor = document.getElementById('ev-editor') as HTMLElement;
+  const extraFieldsContainer = document.getElementById('ev-extra-fields') as HTMLElement;
+  const addExtraBtn = document.getElementById('ev-add-extra') as HTMLButtonElement;
+
+  let currentEditingId: string | null = null;
+
+  function addExtraRow(key = '', value = '') {
+    const row = document.createElement('div');
+    row.className = 'admin-extra-row';
+
+    const keyInput = document.createElement('input');
+    keyInput.type = 'text';
+    keyInput.placeholder = 'Feldname (z.B. Beginn)';
+    keyInput.value = key;
+
+    const valueInput = document.createElement('input');
+    valueInput.type = 'text';
+    valueInput.placeholder = 'Wert (z.B. 18:00 Uhr)';
+    valueInput.value = value;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '✕';
+    removeBtn.addEventListener('click', () => row.remove());
+
+    row.append(keyInput, valueInput, removeBtn);
+    extraFieldsContainer.appendChild(row);
+  }
+
+  function gatherExtra(): Record<string, string> {
+    const extra: Record<string, string> = {};
+    extraFieldsContainer.querySelectorAll<HTMLElement>('.admin-extra-row').forEach((row) => {
+      const inputs = row.querySelectorAll<HTMLInputElement>('input');
+      const key = inputs[0].value.trim();
+      const value = inputs[1].value.trim();
+      if (key) extra[key] = value;
+    });
+    return extra;
+  }
+
+  addExtraBtn.addEventListener('click', () => addExtraRow());
+
+  function openEventDialog(event?: EventRow) {
+    currentEditingId = event?.id ?? null;
+    eventDialogTitle.textContent = event ? 'Termin bearbeiten' : 'Neuer Termin';
+    eventError.textContent = '';
+    eventForm.reset();
+    editor.innerHTML = '';
+    extraFieldsContainer.innerHTML = '';
+
+    if (event) {
+      dateIsoInput.value = event.date_iso;
+      dateLabelInput.value = event.date_label ?? '';
+      timeInput.value = event.time ?? '';
+      titleInput.value = event.title_date;
+      metaInput.value = event.meta ?? '';
+      editor.innerHTML = event.text_html ?? '';
+      Object.entries(event.extra ?? {}).forEach(([key, value]) => addExtraRow(key, value));
+    }
+
+    eventDialog.showModal();
+  }
+
+  addEventBtn.addEventListener('click', () => openEventDialog());
+  eventCancelBtn.addEventListener('click', () => eventDialog.close());
+
+  eventForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    eventError.textContent = '';
+
+    const payload = {
+      date_iso: dateIsoInput.value,
+      date_label: dateLabelInput.value || null,
+      time: timeInput.value || null,
+      title_date: titleInput.value,
+      meta: metaInput.value || null,
+      text_html: editor.innerHTML,
+      extra: gatherExtra(),
+    };
+
+    eventSaveBtn.disabled = true;
+    try {
+      const { error } = currentEditingId
+        ? await supabase.from('events').update(payload).eq('id', currentEditingId)
+        : await supabase.from('events').insert(payload);
+
+      if (error) throw error;
+
+      eventDialog.close();
+      await loadEvents();
+    } catch (err) {
+      eventError.textContent = err instanceof Error ? err.message : 'Fehler beim Speichern.';
+    } finally {
+      eventSaveBtn.disabled = false;
+    }
+  });
+
+  // ---- Rich text toolbar --------------------------------------------------
+  let savedRange: Range | null = null;
+
+  function saveSelection() {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && editor.contains(sel.anchorNode)) {
+      savedRange = sel.getRangeAt(0).cloneRange();
+    }
+  }
+
+  function restoreSelection() {
+    if (!savedRange) return;
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(savedRange);
+  }
+
+  editor.addEventListener('mouseup', saveSelection);
+  editor.addEventListener('keyup', saveSelection);
+
+  function escapeHtml(str: string) {
+    return str.replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c] as string));
+  }
+
+  function applyUppercase() {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    const text = sel.toString();
+    if (!text) return;
+    document.execCommand('insertHTML', false, `<span style="text-transform:uppercase">${escapeHtml(text)}</span>`);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.admin-editor-toolbar button[data-cmd]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      editor.focus();
+      restoreSelection();
+      const cmd = btn.dataset.cmd;
+      if (cmd === 'bold') {
+        document.execCommand('bold');
+      } else if (cmd === 'uppercase') {
+        applyUppercase();
+      }
+    });
+  });
+
+  const colorInput = document.getElementById('ev-color') as HTMLInputElement;
+  const colorApplyBtn = document.getElementById('ev-color-apply') as HTMLButtonElement;
+  colorApplyBtn.addEventListener('click', () => {
+    editor.focus();
+    restoreSelection();
+    document.execCommand('foreColor', false, colorInput.value);
+  });
+
+  const clearFormatBtn = document.getElementById('ev-clear-format') as HTMLButtonElement;
+  clearFormatBtn.addEventListener('click', () => {
+    editor.focus();
+    restoreSelection();
+    document.execCommand('removeFormat');
+  });
+
+  // ---- Galerie -------------------------------------------------------------
+  const galleryListEl = document.getElementById('gallery-list') as HTMLElement;
+  const galleryUploadInput = document.getElementById('gallery-upload') as HTMLInputElement;
+  const galleryErrorEl = document.getElementById('gallery-error') as HTMLElement;
+
+  async function loadGallery() {
+    galleryErrorEl.textContent = '';
+    galleryListEl.innerHTML = '';
+
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      galleryErrorEl.textContent = error.message;
+      return;
+    }
+
+    (data as GalleryRow[]).forEach((img) => {
+      const { data: urlData } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(img.storage_path);
+
+      const item = document.createElement('div');
+      item.className = 'admin-gallery-item';
+
+      const el = document.createElement('img');
+      el.src = urlData.publicUrl;
+      el.alt = img.alt ?? '';
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'danger';
+      delBtn.textContent = 'Löschen';
+      delBtn.addEventListener('click', () => deleteGalleryImage(img));
+
+      item.append(el, delBtn);
+      galleryListEl.appendChild(item);
+    });
+  }
+
+  async function deleteGalleryImage(img: GalleryRow) {
+    if (!confirm('Dieses Bild wirklich löschen?')) return;
+    await supabase.storage.from(GALLERY_BUCKET).remove([img.storage_path]);
+    await supabase.from('gallery_images').delete().eq('id', img.id);
+    await loadGallery();
+  }
+
+  galleryUploadInput.addEventListener('change', async () => {
+    const files = galleryUploadInput.files;
+    if (!files || files.length === 0) return;
+    galleryErrorEl.textContent = '';
+
+    for (const file of Array.from(files)) {
+      const ext = file.name.split('.').pop();
+      const path = `${crypto.randomUUID()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage.from(GALLERY_BUCKET).upload(path, file);
+      if (uploadError) {
+        galleryErrorEl.textContent = uploadError.message;
+        continue;
+      }
+
+      const { error: insertError } = await supabase.from('gallery_images').insert({ storage_path: path, alt: file.name });
+      if (insertError) galleryErrorEl.textContent = insertError.message;
+    }
+
+    galleryUploadInput.value = '';
+    await loadGallery();
+  });
+
+  // ---- Init -----------------------------------------------------------------
+  checkSession();
+</script>

@@ -1,0 +1,102 @@
+.admin-box { max-width: 800px; margin: 0 auto; }
+
+.admin-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+
+.admin-error { color: var(--brand); margin-top: 8px; min-height: 1.4em; }
+
+/* =================== Forms =================== */
+.admin-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.admin-field label { font-weight: 600; font-size: 0.9rem; }
+.admin-field input,
+.admin-field textarea {
+  padding: 8px 10px;
+  border: 1px solid #0002;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  color: var(--fg);
+}
+.admin-form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.admin-form-row .admin-field { flex: 1; min-width: 160px; }
+
+button.button,
+.admin-box button {
+  cursor: pointer;
+  border: 1px solid #0002;
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--fg);
+  font: inherit;
+  padding: 8px 16px;
+}
+.admin-box button.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+.admin-box button.danger { background: #fff; color: var(--brand); border-color: var(--brand); }
+.admin-box button:disabled { opacity: 0.6; cursor: default; }
+
+/* =================== Tabs =================== */
+.admin-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #0001; }
+.admin-tab-btn { background: none; border: none; border-bottom: 3px solid transparent; padding: 10px 4px; font-weight: 600; color: var(--muted); }
+.admin-tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+/* =================== Events list =================== */
+.admin-event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #0001;
+  border-radius: 10px;
+  background: var(--card);
+  margin-bottom: 10px;
+}
+.admin-event-item .admin-event-info { display: flex; flex-direction: column; gap: 2px; }
+.admin-event-item .admin-event-date { font-size: 0.85rem; color: var(--muted); }
+.admin-event-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* =================== Rich text editor =================== */
+.admin-editor-toolbar { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+.admin-editor-toolbar button { padding: 6px 10px; }
+.admin-editor-toolbar input[type="color"] { width: 38px; height: 36px; padding: 2px; border-radius: 8px; border: 1px solid #0002; }
+.admin-editor {
+  min-height: 140px;
+  border: 1px solid #0002;
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px 12px;
+}
+.admin-editor:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+
+/* =================== Extra fields =================== */
+.admin-extra-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.admin-extra-row input { flex: 1; }
+
+/* =================== Dialog =================== */
+.admin-box dialog {
+  border: none;
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 640px;
+  width: 92vw;
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--bg);
+  color: var(--fg);
+}
+.admin-box dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+.admin-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+/* =================== Gallery manager =================== */
+.admin-gallery-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 16px; }
+.admin-gallery-item { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid #0001; }
+.admin-gallery-item img { width: 100%; height: 140px; object-fit: cover; display: block; }
+.admin-gallery-item button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+@media (max-width: 700px) {
+  .admin-gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}

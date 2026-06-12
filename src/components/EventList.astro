@@ -1,15 +1,4 @@
 ---
-import eventsData from '../data/jahresprogramm.json';
-
-interface Event {
-  date_iso: string;
-  title_date: string;
-  text_html?: string;
-  date_label?: string;
-  time?: string;
-  meta?: string;
-}
-
 interface Props {
   variant?: 'preview' | 'grid' | 'list';
   limit?: number;
@@ -17,9 +6,8 @@ interface Props {
 
 const { variant = 'list', limit } = Astro.props;
 
-// Alle Events sortiert ins HTML – Filterung passiert client-seitig
-const events: Event[] = (eventsData.events as Event[])
-  .sort((a, b) => (a.date_iso || '').localeCompare(b.date_iso || ''));
+// Events are loaded from Supabase client-side (see <script> below) so that
+// edits made in /admin show up without a rebuild.
 ---
 
 <div
@@ -28,17 +16,6 @@ const events: Event[] = (eventsData.events as Event[])
   data-variant={variant}
   data-limit={limit ?? ''}
 >
-  {events.map((ev) => (
-    <div class="event-card" data-date={ev.date_iso} style="display:none">
-      <h3>{ev.title_date}</h3>
-
-      {ev.meta && <div class="meta">{ev.meta}</div>}
-
-      {ev.text_html && <p set:html={ev.text_html} />}
-
-      {ev.time && <p><strong>Uhrzeit:</strong> {ev.time} Uhr</p>}
-    </div>
-  ))}
 </div>
 
 <p class="events-empty" data-empty style="display:none">
@@ -46,18 +23,84 @@ const events: Event[] = (eventsData.events as Event[])
 </p>
 
 <script>
-  document.querySelectorAll<HTMLElement>('[data-eventlist]').forEach((container) => {
-    const today = new Date().toISOString().slice(0, 10);
-    const limit = container.dataset.limit ? parseInt(container.dataset.limit) : null;
+  import { supabase } from '../lib/supabase';
 
-    const cards = [...container.querySelectorAll<HTMLElement>('.event-card')];
+  interface EventRow {
+    date_iso: string;
+    title_date: string;
+    text_html?: string | null;
+    date_label?: string | null;
+    time?: string | null;
+    meta?: string | null;
+    extra?: Record<string, string> | null;
+  }
+
+  function renderCard(ev: EventRow): HTMLElement {
+    const card = document.createElement('div');
+    card.className = 'event-card';
+    card.dataset.date = ev.date_iso;
+
+    const title = document.createElement('h3');
+    title.textContent = ev.title_date;
+    card.appendChild(title);
+
+    if (ev.meta) {
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = ev.meta;
+      card.appendChild(meta);
+    }
+
+    if (ev.text_html) {
+      const text = document.createElement('p');
+      text.innerHTML = ev.text_html;
+      card.appendChild(text);
+    }
+
+    if (ev.time) {
+      const time = document.createElement('p');
+      const strong = document.createElement('strong');
+      strong.textContent = 'Uhrzeit:';
+      time.appendChild(strong);
+      time.append(` ${ev.time} Uhr`);
+      card.appendChild(time);
+    }
+
+    // Render any extra admin-defined fields as "Key: value" lines.
+    if (ev.extra) {
+      for (const [key, value] of Object.entries(ev.extra)) {
+        if (!value) continue;
+        const extra = document.createElement('p');
+        const strong = document.createElement('strong');
+        strong.textContent = `${key}:`;
+        extra.appendChild(strong);
+        extra.append(` ${value}`);
+        card.appendChild(extra);
+      }
+    }
+
+    return card;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-eventlist]').forEach(async (container) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const limit = container.dataset.limit ? parseInt(container.dataset.limit, 10) : null;
+
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date_iso', { ascending: true });
+
+    if (error || !data) return;
+
+    const events = data as EventRow[];
 
     // Nur zukünftige Events anzeigen
-    const upcoming = cards.filter(card => (card.dataset.date ?? '') >= today);
+    const upcoming = events.filter((ev) => (ev.date_iso ?? '') >= today);
 
     // Limit anwenden
     const visible = limit ? upcoming.slice(0, limit) : upcoming;
-    visible.forEach(card => card.style.display = '');
+    visible.forEach((ev) => container.appendChild(renderCard(ev)));
 
     // Leer-Meldung anzeigen wenn nichts übrig
     const emptyMsg = container.nextElementSibling as HTMLElement | null;
