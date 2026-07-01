@@ -43,7 +43,7 @@ runtime (build still succeeds since data loading is client-side).
   / `<div class="container">` content block. Styling is per-page CSS files, no shared component
   library beyond `header`/`footer`/`EventList`.
 - **`src/components/EventList.astro`** — events/agenda system shared across the homepage,
-  `anlaesse`, and `jahresprogramm` pages. Data lives in Supabase (`"frv-p-01".events`, see
+  `anlaesse`, and `jahresprogramm` pages. Data lives in Supabase (`public.events`, see
   "Supabase backend" below), not in a local JSON file.
   - The component renders an empty container server-side, then a client `<script>` fetches all
     rows from `events` (ordered by `date_iso`), builds `.event-card` elements (each with
@@ -56,7 +56,7 @@ runtime (build still succeeds since data loading is client-side).
     lines — this is how admins add ad-hoc fields (e.g. a start time) without schema changes.
   - `variant` prop (`'preview' | 'grid' | 'list'`) only changes the wrapper CSS class
     (`events-list` vs `events-grid events-grid--<variant>`) — filtering logic is identical.
-- **`src/pages/galerie.astro`** — fetches `"frv-p-01".gallery_albums` and `gallery_images`
+- **`src/pages/galerie.astro`** — fetches `public.gallery_albums` and `gallery_images`
   client-side, resolves each `storage_path` to a public URL via
   `supabase.storage.from(GALLERY_BUCKET).getPublicUrl()`. For each album ("Anlass") that has
   images, renders a `.gallery-album` section (title + optional description) containing a
@@ -76,9 +76,8 @@ runtime (build still succeeds since data loading is client-side).
 ## Supabase backend
 
 This site is otherwise static, but content for Jahresprogramm and Galerie lives in a Supabase
-project. All app tables/functions live in the **`"frv-p-01"`** Postgres schema (note the
-hyphens — must be double-quoted in every SQL statement; `src/lib/supabase.ts` configures the
-JS client with `db: { schema: 'frv-p-01' }` so `.from()`/`.rpc()` calls don't need to repeat it).
+project. All app tables/functions live in the default **`public`** Postgres schema —
+`src/lib/supabase.ts` creates a plain client with no `db.schema` override.
 
 - **`supabase/schema.sql`** — full setup script (tables, RLS policies, storage bucket + storage
   policies, seed data). Run manually in the Supabase SQL editor — there is no migration runner.
@@ -87,24 +86,22 @@ JS client with `db: { schema: 'frv-p-01' }` so `.from()`/`.rpc()` calls don't ne
 - **`supabase/002_gallery_albums.sql`** — incremental migration adding `gallery_albums` +
   `gallery_images.album_id` + RLS (also folded into `schema.sql` for fresh installs). Ends with
   `notify pgrst, 'reload schema'` so PostgREST picks up the new table/column without a restart.
-- **Tables**: `"frv-p-01".events` (Jahresprogramm; includes a free-form `extra jsonb` column for
-  admin-defined fields), `"frv-p-01".gallery_images` (`storage_path` + `alt` + `sort_order` +
-  nullable `album_id` FK), `"frv-p-01".gallery_albums` ("Anlässe": `title`, `description`,
-  `sort_order` — see `supabase/002_gallery_albums.sql`), `"frv-p-01".admins` (allow-list:
-  `user_id` → grants admin write access, checked via the `"frv-p-01".is_admin()` SQL function).
+- **Tables**: `public.events` (Jahresprogramm; includes a free-form `extra jsonb` column for
+  admin-defined fields), `public.gallery_images` (`storage_path` + `alt` + `sort_order` +
+  nullable `album_id` FK), `public.gallery_albums` ("Anlässe": `title`, `description`,
+  `sort_order` — see `supabase/002_gallery_albums.sql`), `public.admins` (allow-list:
+  `user_id` → grants admin write access, checked via the `public.is_admin()` SQL function).
   `gallery_images.album_id IS NULL` means the image is unassigned (`on delete set null`, so
   deleting an album just unassigns its images rather than deleting them).
 - **Storage**: public bucket **`frv-buk-p-01`** for gallery images (`GALLERY_BUCKET` constant in
   `src/lib/supabase.ts`). Public read; insert/update/delete restricted to admins via
   `storage.objects` RLS policies that call `is_admin()`.
 - **RLS pattern**: `events` and `gallery_images` are publicly readable; writes require
-  `"frv-p-01".is_admin()` (a `security definer` function checking `auth.uid()` against the
+  `public.is_admin()` (a `security definer` function checking `auth.uid()` against the
   `admins` table — that table itself has RLS enabled with no policies, i.e. locked down except
   via this function).
-- **Important**: the `"frv-p-01"` schema must be added to **Project Settings → API → Exposed
-  schemas** in the Supabase dashboard, or PostgREST won't serve it.
 - To grant someone admin access: create their user via Supabase Auth, then insert their
-  `user_id`/`email` into `"frv-p-01".admins` (see bottom of `supabase/schema.sql`).
+  `user_id`/`email` into `public.admins` (see bottom of `supabase/schema.sql`).
 
 ## Admin area (`/admin`)
 
@@ -112,7 +109,7 @@ Single-page, fully client-side (no SSR/middleware — this is a static site). On
 `supabase.auth.getSession()` then calls the `is_admin()` RPC; shows one of: login form,
 "kein Zugriff" (authenticated but not in `admins`), or the dashboard.
 
-- **Jahresprogramm tab**: CRUD over `"frv-p-01".events` via a `<dialog>` form. The description
+- **Jahresprogramm tab**: CRUD over `public.events` via a `<dialog>` form. The description
   field is a `contenteditable` rich-text editor (toolbar: bold, "uppercase selection" — wraps
   the selection in `<span style="text-transform:uppercase">`, font color via `execCommand`,
   clear formatting) whose `innerHTML` is saved as `text_html`. "Zusätzliche Felder" is a
