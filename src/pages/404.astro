@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/404.css';
+---
+
+<BaseLayout title="Seite nicht gefunden">
+  <section class="not-found section">
+    <div class="container">
+      <div class="not-found-card card">
+        <span class="not-found-eyebrow">Fehler 404</span>
+        <h1>Diese Seite gibt es nicht.</h1>
+        <p>
+          Die gesuchte Seite wurde vielleicht verschoben, umbenannt oder existiert
+          schlicht nicht (mehr). Schau doch bei unserem Jahresprogramm vorbei oder
+          geh zurück zur Startseite.
+        </p>
+        <div class="not-found-actions">
+          <a class="button" href="/">Zur Startseite</a>
+          <a class="button ghost" href="/jahresprogramm">Jahresprogramm</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

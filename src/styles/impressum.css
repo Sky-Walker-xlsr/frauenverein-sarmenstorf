@@ -25,3 +25,9 @@
   line-height: 1.7;
   color: var(--fg);
 }
+
+.impressum-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 8px;
+}

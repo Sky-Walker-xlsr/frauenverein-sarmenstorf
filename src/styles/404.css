@@ -1,0 +1,39 @@
+.not-found {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+}
+
+.not-found-card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 40px;
+  text-align: center;
+}
+
+.not-found-eyebrow {
+  display: inline-block;
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 12px;
+}
+
+.not-found-card h1 {
+  margin: 0 0 16px;
+}
+
+.not-found-card p {
+  color: var(--muted);
+  margin: 0 0 28px;
+}
+
+.not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
