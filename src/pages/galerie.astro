@@ -25,19 +25,7 @@ import '../styles/galerie.css';
 </BaseLayout>
 
 <script>
-  import { supabase, GALLERY_BUCKET } from '../lib/supabase';
-
-  interface AlbumRow {
-    id: string;
-    title: string;
-    description: string | null;
-  }
-
-  interface GalleryImage {
-    storage_path: string;
-    alt: string | null;
-    album_id: string | null;
-  }
+  import { getAlbums, getUnassignedImages, type GalleryImage } from '../lib/gallery';
 
   const albumsEl = document.getElementById('albums') as HTMLElement;
   const gallery = document.getElementById('gallery') as HTMLElement;
@@ -66,9 +54,8 @@ import '../styles/galerie.css';
   });
 
   function makeImg(img: GalleryImage): HTMLImageElement {
-    const { data: urlData } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(img.storage_path);
     const el = document.createElement('img');
-    el.src = urlData.publicUrl;
+    el.src = img.url;
     el.alt = img.alt ?? '';
     el.loading = 'lazy';
     el.addEventListener('click', () => openLightbox(el.src, el.alt));
@@ -93,22 +80,11 @@ import '../styles/galerie.css';
   }
 
   (async () => {
-    const [albumsRes, imagesRes] = await Promise.all([
-      supabase.from('gallery_albums').select('id, title, description').order('sort_order', { ascending: true }).order('created_at', { ascending: true }),
-      supabase
-        .from('gallery_images')
-        .select('storage_path, alt, album_id')
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: true }),
-    ]);
-
-    const albums = (albumsRes.data ?? []) as AlbumRow[];
-    const images = (imagesRes.data ?? []) as GalleryImage[];
+    const [albums, poolImages] = await Promise.all([getAlbums(), getUnassignedImages()]);
 
     // Albums with their assigned pictures, as rotating carousels.
     albums.forEach((album) => {
-      const albumImages = images.filter((img) => img.album_id === album.id);
-      if (albumImages.length === 0) return;
+      if (album.images.length === 0) return;
 
       const section = document.createElement('section');
       section.className = 'gallery-album';
@@ -124,17 +100,17 @@ import '../styles/galerie.css';
         section.appendChild(desc);
       }
 
-      section.appendChild(buildCarousel(albumImages));
+      section.appendChild(buildCarousel(album.images));
       albumsEl.appendChild(section);
     });
 
-    if (images.length === 0) {
+    const totalImages = albums.reduce((n, a) => n + a.images.length, 0) + poolImages.length;
+    if (totalImages === 0) {
       empty.style.display = '';
       return;
     }
 
     // Remaining unassigned images, as a plain grid (as before).
-    const poolImages = images.filter((img) => !img.album_id);
     poolImages.forEach((img) => gallery.appendChild(makeImg(img)));
   })();
 </script>
