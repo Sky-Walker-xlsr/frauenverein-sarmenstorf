@@ -31,3 +31,10 @@
   color: var(--muted);
   margin-top: 8px;
 }
+
+.impressum-block ul {
+  line-height: 1.7;
+  color: var(--fg);
+  padding-left: 20px;
+  margin: 10px 0;
+}
